@@ -5,6 +5,7 @@ import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { EmptyState, ErrorState, LoadingState, SuccessState } from '../../components/ui/Feedback'
+import { JobyLogo } from '../../components/ui/JobyLogo'
 import { PageContainer } from '../../components/layout/PageContainer'
 import { EvidenceStatusBadge } from '../../components/ui/EvidenceStatusBadge'
 import { displayDatabaseError } from '../../lib/displayErrors'
@@ -182,7 +183,7 @@ export function PublicPassportPage() {
       </a>
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Link to="/" className="inline-flex min-h-10 items-center gap-2 font-bold text-navy">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-navy text-sm text-white">J</span>
+          <JobyLogo className="h-8 w-8" />
           Joby AI Skills Passport
         </Link>
         <Button variant="secondary" onClick={() => window.print()}>

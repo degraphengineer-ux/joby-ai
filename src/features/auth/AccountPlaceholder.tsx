@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { PageContainer } from '../../components/layout/PageContainer'
+import { JobyLogo } from '../../components/ui/JobyLogo'
 import { useAuth } from './useAuth'
 
 const routeLabels: Record<string, string> = {
@@ -39,7 +40,7 @@ export function AccountPlaceholder({ route }: { route: string }) {
       <header className="border-b border-navy/10 bg-white">
         <PageContainer className="flex min-h-16 items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2.5 font-bold text-navy">
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-navy text-sm text-white">J</span>
+            <JobyLogo />
             Joby AI
           </Link>
           <Button size="md" variant="secondary" onClick={handleSignOut} disabled={isSigningOut}>

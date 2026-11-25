@@ -1,6 +1,7 @@
 import { Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ButtonLink } from '../ui/Button'
+import { JobyLogo } from '../ui/JobyLogo'
 import { PageContainer } from './PageContainer'
 
 export function SiteHeader() {
@@ -27,7 +28,7 @@ export function SiteHeader() {
       </a>
       <PageContainer className="flex h-16 items-center justify-between">
         <a href="#top" className="flex items-center gap-2.5 rounded-lg font-bold text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal" aria-label="Joby AI home">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-navy text-sm text-white">J</span>
+          <JobyLogo />
           <span className="text-lg tracking-tight">Joby AI</span>
         </a>
 

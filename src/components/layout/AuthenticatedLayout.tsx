@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { Button } from '../ui/Button'
 import { ErrorState } from '../ui/Feedback'
+import { JobyLogo } from '../ui/JobyLogo'
 import { PageContainer } from './PageContainer'
 import { useAuth } from '../../features/auth/useAuth'
 import { displayDatabaseError } from '../../lib/displayErrors'
@@ -121,9 +122,7 @@ export function AuthenticatedLayout() {
             className="flex shrink-0 items-center gap-2.5 rounded-lg text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal"
             aria-label="Joby AI overview"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-navy text-white">
-              <span className="text-sm font-bold">J</span>
-            </span>
+            <JobyLogo />
             <span className="font-bold tracking-tight">Joby AI</span>
           </NavLink>
 
