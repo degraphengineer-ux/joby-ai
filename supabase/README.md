@@ -13,9 +13,9 @@ Confirm the project reference before linking or pushing. `db push` applies pendi
 
 Use `--remote` explicitly: the CLI otherwise targets the local database by default, which requires a local Postgres server on port `54322`. `npx supabase start` is a separate local-development workflow and requires Docker Desktop to be running.
 
-The standard migration set in `supabase/migrations/` contains the MVP schema, security, seed, private storage, public passport function, profile trigger and hardening. P1 tables are kept in `supabase/optional-migrations/` and are not applied by `supabase db push`.
+The standard migration set in `supabase/migrations/` contains the MVP schema, security, seed, private storage, passport sharing, profile trigger and hardening. `review_records` is added by the Skills Passport migration; `ai_processing_logs` remains in `supabase/optional-migrations/` and is not applied by `supabase db push`.
 
-The optional P1 SQL is a reference migration only. Review and add it to the standard migration path only when the reviewer/logging features are actually scheduled.
+The optional P1 SQL is a reference migration only. Review and add it to the standard migration path only when the corresponding features are scheduled.
 
 ## Authentication migration
 
@@ -52,11 +52,17 @@ npx supabase functions deploy extract-skills --remote=<project-ref> --use-api
 
 The rate-limit RPC permits five requests per authenticated user per UTC hour. Requests contain at most 12,000 characters, and the function times out Gemini calls after 25 seconds. The frontend lets users edit, accept, or reject each suggestion; accepted skills remain AI suggestions and are not represented as verified. Live extraction requires an authorized deployment and a Gemini key configured privately in Supabase.
 
-## Public passport
+## Skills Passport and public sharing
 
-`public.get_public_passport(p_slug)` is a SECURITY DEFINER allowlist function. It returns only profile fields approved for the public passport and requires `is_public = true`.
+The private preview is available at `/passport`; public links use `/p/:slug`. The profile trigger generates a random UUID-based slug when sharing is enabled and rotates it when sharing is re-enabled. Revoking sharing sets `is_public = false`, which makes subsequent public queries return no passport.
 
-The MVP does not expose private evidence paths or assessment submissions through this function. When public sharing is enabled, the database generates an unguessable slug; disabling and re-enabling sharing rotates it.
+The Phase 07 migration adds `get_public_passport_v2(p_slug)`, a `SECURITY DEFINER` function with an explicit JSON allowlist. It returns profile display fields, skills and self-reported proficiency, only evidence explicitly set to public, completed rubric scores, and the last-updated date. It does not return account identifiers, email, phone, private evidence, Storage paths, reviewer notes, assessment submissions, or detailed assessment feedback. Uploaded documents remain private even when their evidence summary is shared. The older profile-only RPC is revoked.
+
+The migration creates `review_records` when absent but does not create review rows or grant candidates write access. “Human reviewed” is shown only when a real trusted review record exists. AI-assisted scores remain distinct from human review and official credentials; no external credential is marked verified automatically.
+
+Public correction requests are validated and saved in `passport_correction_requests`; the table is not readable by anonymous or ordinary authenticated users. Requests are stored for later administrative review, but this MVP does not send notifications or include an admin review screen.
+
+Run `supabase/tests/public_passport_test.sql` only in a dedicated test project with an existing test auth user. It checks the public field allowlist, private evidence and submission exclusions, invalid and revoked slugs, public review/assessment status, and correction-request access.
 
 ## Assessment attempts
 

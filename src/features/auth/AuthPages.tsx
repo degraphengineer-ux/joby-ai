@@ -103,7 +103,7 @@ export function AuthPage({ mode }: AuthPageProps) {
   return (
     <AuthLayout>
       <section className="rounded-xl border border-navy/10 bg-white p-6 shadow-card sm:p-8">
-        <p className="text-sm font-bold text-teal">
+        <p className="text-sm font-bold text-teal-700">
           {isRegistration ? 'Create account' : 'Welcome back'}
         </p>
         <h1 className="mt-2 text-3xl font-bold text-navy">
@@ -201,7 +201,7 @@ export function AuthPage({ mode }: AuthPageProps) {
           {isRegistration ? 'Already have an account?' : 'New to Joby AI?'}{' '}
           <Link
             to={isRegistration ? '/login' : '/signup'}
-            className="font-bold text-teal hover:text-navy"
+            className="font-bold text-teal-700 hover:text-navy"
           >
             {isRegistration ? 'Sign in' : 'Create account'}
           </Link>

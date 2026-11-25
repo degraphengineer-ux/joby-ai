@@ -5,7 +5,14 @@ import { PageContainer } from '../../components/layout/PageContainer'
 
 export function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="min-h-screen bg-warm">
+    <>
+      <a
+        href="#main-content"
+        className="sr-only fixed left-4 top-4 z-[60] rounded-lg bg-white px-4 py-3 font-semibold text-navy shadow-soft focus:not-sr-only focus:outline focus:outline-2 focus:outline-teal"
+      >
+        Skip to main content
+      </a>
+      <main id="main-content" tabIndex={-1} className="min-h-screen bg-warm">
       <PageContainer className="py-5 sm:py-8">
         <Link
           to="/"
@@ -20,7 +27,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
           <div className="grid h-12 w-12 place-items-center rounded-xl bg-navy text-white">
             <ShieldCheck size={24} aria-hidden="true" />
           </div>
-          <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-teal">
+          <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-teal-700">
             Evidence-first
           </p>
           <h1 className="mt-3 max-w-md text-4xl font-bold leading-tight text-navy">
@@ -32,6 +39,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
         </div>
         <div className="mx-auto w-full max-w-md lg:pl-12">{children}</div>
       </div>
-    </main>
+      </main>
+    </>
   )
 }

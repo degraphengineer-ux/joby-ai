@@ -19,8 +19,14 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-navy/5 bg-white/95 backdrop-blur">
+      <a
+        href="#main-content"
+        className="sr-only fixed left-4 top-4 z-[60] rounded-lg bg-white px-4 py-3 font-semibold text-navy shadow-soft focus:not-sr-only focus:outline focus:outline-2 focus:outline-teal"
+      >
+        Skip to main content
+      </a>
       <PageContainer className="flex h-16 items-center justify-between">
-        <a href="#top" className="flex items-center gap-2.5 font-bold text-navy" aria-label="Joby AI home">
+        <a href="#top" className="flex items-center gap-2.5 rounded-lg font-bold text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal" aria-label="Joby AI home">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-navy text-sm text-white">J</span>
           <span className="text-lg tracking-tight">Joby AI</span>
         </a>
@@ -29,7 +35,7 @@ export function SiteHeader() {
           <a className="nav-link" href="#how-it-works">How it works</a>
           <a className="nav-link" href="#features">What you can build</a>
           <a className="nav-link" href="#trust">Trust</a>
-          <ButtonLink href="/signup" variant="primary">Build my passport</ButtonLink>
+          <ButtonLink href="/signup" variant="primary">Create your Skills Passport</ButtonLink>
         </nav>
 
         <button
@@ -40,7 +46,7 @@ export function SiteHeader() {
           aria-label={open ? 'Close navigation' : 'Open navigation'}
           onClick={() => setOpen((value) => !value)}
         >
-          {open ? <X size={22} /> : <Menu size={22} />}
+          {open ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
         </button>
       </PageContainer>
 
@@ -66,7 +72,7 @@ export function SiteHeader() {
               </a>
             ))}
             <ButtonLink href="/signup" variant="primary" className="mt-3" onClick={() => setOpen(false)}>
-              Build my passport
+              Create your Skills Passport
             </ButtonLink>
           </PageContainer>
         </nav>

@@ -107,11 +107,16 @@ export function EvidenceForm({
         {existingEvidence ? 'Edit evidence' : 'Add evidence'}
       </h2>
       <p className="mt-2 text-sm leading-6 text-slatebody">
-        Evidence you submit is not independently verified. Your record and any uploaded file are private to your account.
+        Evidence you submit is not independently verified. Records are private by default; only selected summaries can be shared from your Skills Passport.
       </p>
       <div className="mt-4 rounded-lg border border-navy/10 bg-warm px-4 py-3 text-sm leading-6 text-slatebody">
-        <span className="font-semibold text-navy">Visibility: Private.</span> Public evidence sharing is not available yet; uploaded files stay in the private bucket. Please do not upload passports, national IDs or other sensitive identity documents.
+        <span className="font-semibold text-navy">Visibility: Private by default.</span> Choose whether to share an evidence summary from your Skills Passport. Uploaded files always stay in the private bucket. Please do not upload passports, national IDs or other sensitive identity documents.
       </div>
+      {existingEvidence?.visibility === 'public' && (
+        <p className="mt-3 rounded-lg border border-warning/20 bg-warning/5 px-4 py-3 text-sm leading-6 text-navy">
+          Saving edits will make this summary private. Review the updated content before sharing it again from your Skills Passport.
+        </p>
+      )}
       {error && <div className="mt-5"><ErrorState>{error}</ErrorState></div>}
 
       <form className="mt-6 space-y-5" onSubmit={handleSubmit} noValidate>

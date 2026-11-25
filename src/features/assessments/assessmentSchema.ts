@@ -102,7 +102,7 @@ export const assessmentFeedbackSchema = z.object({
   assessment_title: z.string().trim().min(1).max(200),
   assessment_category: z.string().trim().min(1).max(100),
   total_max_score: z.number().int().positive(),
-  method_label: z.literal('AI-assisted assessment'),
+  method_label: z.enum(['AI-assisted assessment', 'Human reviewed']),
   criteria: z.array(assessmentFeedbackCriterionSchema).min(1).max(12),
   strengths: z.array(z.string().trim().min(1).max(500)).max(8),
   improvements: z.array(z.string().trim().min(1).max(500)).max(8),

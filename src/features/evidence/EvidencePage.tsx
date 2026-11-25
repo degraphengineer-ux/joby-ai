@@ -136,7 +136,7 @@ export function EvidencePage() {
       />
 
       <div className="mb-6 rounded-xl border border-teal/20 bg-teal/5 p-4 text-sm leading-6 text-navy">
-        <strong>Privacy:</strong> Evidence records and uploaded files are private to your account. Files are never made public here; temporary access links expire after 60 seconds. Do not upload passports, national IDs or other sensitive identity documents. AI extraction is not part of this phase.
+        <strong>Privacy:</strong> Evidence records and uploaded files are private to your account. Files are never made public here; temporary access links expire after 60 seconds. Do not upload passports, national IDs or other sensitive identity documents. AI skill suggestions must be reviewed before they are saved.
       </div>
 
       {saveError && !showForm && <div className="mb-5"><ErrorState>{saveError}</ErrorState></div>}
@@ -210,7 +210,9 @@ export function EvidencePage() {
                 <Card as="article" className="flex h-full flex-col p-5 shadow-card">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge tone="teal">{evidenceTypeLabels[item.evidence_type]}</Badge>
-                    <Badge>Private</Badge>
+                    <Badge tone={item.visibility === 'public' ? 'teal' : 'slate'}>
+                      {item.visibility === 'public' ? 'Public summary' : 'Private'}
+                    </Badge>
                   </div>
                   <h2 className="mt-4 break-words text-lg font-bold text-navy">{item.title}</h2>
                   {item.description && (
@@ -223,7 +225,7 @@ export function EvidencePage() {
                     </span>
                     <Link
                       to={`/evidence/${item.id}`}
-                      className="inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-semibold text-navy hover:text-teal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                      className="inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-semibold text-navy hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
                     >
                       View details
                       <ArrowRight size={16} aria-hidden="true" />

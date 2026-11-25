@@ -7,6 +7,9 @@ export function SiteFooter() {
         <div>
           <p className="font-bold text-navy">Joby AI</p>
           <p className="mt-1">Your skills deserve to be seen.</p>
+          <p className="mt-2 max-w-md text-xs leading-5">
+            Private by default. Share only what you choose; uploaded evidence files remain private.
+          </p>
         </div>
         <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Footer navigation">
           <a className="hover:text-navy" href="#how-it-works">How it works</a>

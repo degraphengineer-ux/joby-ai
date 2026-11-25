@@ -27,7 +27,12 @@ function feedbackFromAttempt(attempt: AssessmentAttempt | null): AssessmentFeedb
 
   const scoreTotal = parsed.data.criteria.reduce((total, criterion) => total + criterion.score, 0)
   const maximumTotal = parsed.data.criteria.reduce((total, criterion) => total + criterion.max_score, 0)
+  const expectedMethodLabel =
+    attempt.assessment_method === 'human_review'
+      ? 'Human reviewed'
+      : 'AI-assisted assessment'
   if (
+    parsed.data.method_label !== expectedMethodLabel ||
     attempt.total_score !== scoreTotal ||
     parsed.data.total_max_score !== maximumTotal ||
     parsed.data.criteria.some((criterion) => criterion.score > criterion.max_score)
@@ -144,7 +149,7 @@ export function AssessmentResultsPage() {
         <EmptyState title="Assessment attempt not found">
           <p>This attempt may have been deleted, or it may not belong to your account.</p>
         </EmptyState>
-        <Link to="/assessments" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-navy hover:text-teal">
+        <Link to="/assessments" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-navy hover:text-teal-700">
           <ArrowLeft size={17} aria-hidden="true" />
           Back to assessments
         </Link>
@@ -158,13 +163,15 @@ export function AssessmentResultsPage() {
 
   return (
     <PageContainer className="max-w-4xl py-8 sm:py-12">
-      <Link to="/assessments" className="mb-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-slatebody hover:text-teal">
+      <Link to="/assessments" className="mb-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-slatebody hover:text-teal-700">
         <ArrowLeft size={17} aria-hidden="true" />
         All assessments
       </Link>
       <PageHeading
         title={title}
-        description="AI-assisted assessment feedback is advisory and is not an official certification or qualification."
+        description={attempt.assessment_method === 'human_review'
+          ? 'Human review reflects a reviewer decision and is not an official certification or qualification.'
+          : 'AI-assisted assessment feedback is advisory and is not an official certification or qualification.'}
       />
 
       {evaluationError && <div className="mb-5"><ErrorState>{evaluationError}</ErrorState></div>}
@@ -257,7 +264,7 @@ export function AssessmentResultsPage() {
             )}
           </Card>
           <SuccessState>
-            Completed {attempt.completed_at ? new Date(attempt.completed_at).toLocaleString() : ''} · AI-assisted feedback · Not a formal credential
+            Completed {attempt.completed_at ? new Date(attempt.completed_at).toLocaleString() : ''} · {feedback.method_label} · Not a formal credential
           </SuccessState>
         </div>
       )}
@@ -300,7 +307,7 @@ export function AssessmentResultsPage() {
             ) : (
               <Link
                 to={`/assessments/${attempt.assessment_id}?attempt=${attempt.id}`}
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-navy/15 bg-white px-4 text-sm font-semibold text-navy hover:border-teal/50 hover:text-teal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-navy/15 bg-white px-4 text-sm font-semibold text-navy hover:border-teal/50 hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
               >
                 Continue submission
               </Link>

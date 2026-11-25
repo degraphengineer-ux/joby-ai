@@ -1,4 +1,4 @@
-import { LayoutDashboard, LogOut, Menu, UserRound, X } from 'lucide-react'
+import { LayoutDashboard, LogOut, Menu, Settings, UserRound, X, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { Button } from '../ui/Button'
@@ -8,18 +8,21 @@ import { useAuth } from '../../features/auth/useAuth'
 import { displayDatabaseError } from '../../lib/displayErrors'
 import { ensureProfileExists, initialProfileName } from '../../features/profile/profileService'
 
-const navigation = [
+const navigation: { to: string; label: string; icon?: LucideIcon }[] = [
   { to: '/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/profile', label: 'Profile', icon: UserRound },
   { to: '/skills', label: 'Skills' },
   { to: '/evidence', label: 'Evidence' },
   { to: '/assessments', label: 'Assessments' },
+  { to: '/passport', label: 'Passport' },
+  { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
 export function AuthenticatedLayout() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const [signOutError, setSignOutError] = useState<string | null>(null)
   const [isProfileLoading, setIsProfileLoading] = useState(true)
   const [profileError, setProfileError] = useState<string | null>(null)
@@ -57,17 +60,29 @@ export function AuthenticatedLayout() {
 
   const handleSignOut = async () => {
     setSignOutError(null)
+    setIsSigningOut(true)
     try {
       await signOut()
       navigate('/login', { replace: true })
     } catch (error) {
       setSignOutError(error instanceof Error ? error.message : 'Unable to sign out. Please try again.')
+    } finally {
+      setIsSigningOut(false)
     }
   }
 
+  useEffect(() => {
+    if (!menuOpen) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('keydown', closeOnEscape)
+    return () => document.removeEventListener('keydown', closeOnEscape)
+  }, [menuOpen])
+
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
-      isActive ? 'bg-teal/10 text-teal' : 'text-slatebody hover:bg-navy/5 hover:text-navy'
+      isActive ? 'bg-teal/10 text-teal-700' : 'text-slatebody hover:bg-navy/5 hover:text-navy'
     }`
 
   if (isProfileLoading) {
@@ -93,6 +108,12 @@ export function AuthenticatedLayout() {
 
   return (
     <div className="min-h-screen bg-warm">
+      <a
+        href="#main-content"
+        className="sr-only fixed left-4 top-4 z-[60] rounded-lg bg-white px-4 py-3 font-semibold text-navy shadow-soft focus:not-sr-only focus:outline focus:outline-2 focus:outline-teal"
+      >
+        Skip to main content
+      </a>
       <header className="border-b border-navy/10 bg-white">
         <PageContainer className="flex min-h-[4.5rem] items-center justify-between gap-4">
           <NavLink
@@ -107,8 +128,9 @@ export function AuthenticatedLayout() {
           </NavLink>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main navigation">
-            {navigation.map(({ to, label }) => (
+            {navigation.map(({ to, label, icon: Icon }) => (
               <NavLink key={to} to={to} className={linkClass}>
+                {Icon && <Icon size={16} aria-hidden="true" />}
                 {label}
               </NavLink>
             ))}
@@ -118,9 +140,9 @@ export function AuthenticatedLayout() {
             <span className="max-w-40 truncate text-sm text-slatebody" title={user?.email ?? undefined}>
               {user?.email}
             </span>
-            <Button variant="secondary" onClick={handleSignOut}>
+            <Button variant="secondary" onClick={handleSignOut} disabled={isSigningOut}>
               <LogOut size={16} aria-hidden="true" />
-              Sign out
+              {isSigningOut ? 'Signing out...' : 'Sign out'}
             </Button>
           </div>
 
@@ -140,8 +162,9 @@ export function AuthenticatedLayout() {
           <div id="mobile-app-navigation" className="border-t border-navy/10 bg-white lg:hidden">
             <PageContainer className="py-3">
               <nav className="grid grid-cols-2 gap-2" aria-label="Mobile navigation">
-                {navigation.map(({ to, label }) => (
+                {navigation.map(({ to, label, icon: Icon }) => (
                   <NavLink key={to} to={to} className={linkClass} onClick={() => setMenuOpen(false)}>
+                    {Icon && <Icon size={16} aria-hidden="true" />}
                     {label}
                   </NavLink>
                 ))}
@@ -149,9 +172,10 @@ export function AuthenticatedLayout() {
                   type="button"
                   className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-left text-sm font-semibold text-slatebody hover:bg-navy/5 hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
                   onClick={handleSignOut}
+                  disabled={isSigningOut}
                 >
                   <LogOut size={16} aria-hidden="true" />
-                  Sign out
+                  {isSigningOut ? 'Signing out...' : 'Sign out'}
                 </button>
               </nav>
               <p className="mt-3 truncate px-3 text-xs text-slatebody">{user?.email}</p>
@@ -168,7 +192,9 @@ export function AuthenticatedLayout() {
         </PageContainer>
       )}
       <main>
-        <Outlet />
+        <main id="main-content" tabIndex={-1}>
+          <Outlet />
+        </main>
       </main>
       <footer className="border-t border-navy/10 bg-white py-6">
         <PageContainer className="flex flex-col gap-2 text-sm text-slatebody sm:flex-row sm:items-center sm:justify-between">

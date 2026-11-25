@@ -69,16 +69,16 @@ export function LandingPage() {
     <div id="top" className="min-h-screen bg-warm text-navy">
       <SiteHeader />
 
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <section className="overflow-hidden border-b border-navy/5 bg-white">
           <PageContainer className="grid items-center gap-12 py-16 lg:grid-cols-[1.04fr_0.96fr] lg:py-24">
             <div className="max-w-2xl">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal/20 bg-teal/5 px-3.5 py-1.5 text-sm font-semibold text-teal">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal/20 bg-teal/5 px-3.5 py-1.5 text-sm font-semibold text-teal-700">
                 <ShieldCheck size={16} aria-hidden="true" />
                 Evidence-backed skills
               </div>
               <h1 className="text-[2.75rem] font-bold leading-[1.08] tracking-tight text-navy sm:text-6xl lg:text-[4.25rem]">
-                Your skills deserve to be seen.
+                Show what you can do.
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-8 text-slatebody sm:text-xl">
                 Joby AI helps you turn projects, practical work and assessment results
@@ -86,7 +86,7 @@ export function LandingPage() {
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <ButtonLink href="/signup" size="lg" variant="primary">
-                  Build my passport
+                  Create your Skills Passport
                   <ArrowRight size={18} aria-hidden="true" />
                 </ButtonLink>
                 <ButtonLink href="#how-it-works" size="lg" variant="secondary">
@@ -103,7 +103,8 @@ export function LandingPage() {
               <Card className="p-5 shadow-soft sm:p-7">
                 <div className="flex flex-col items-start justify-between gap-4 border-b border-navy/10 pb-5 sm:flex-row sm:items-start">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal">Skills Passport</p>
+                    <p className="text-xs font-semibold text-slatebody">Illustrative example</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-700">Skills Passport</p>
                     <h2 className="mt-2 text-xl font-bold">Professional profile</h2>
                     <p className="mt-1 text-sm text-slatebody">Projects and practical evidence</p>
                   </div>
@@ -174,7 +175,7 @@ export function LandingPage() {
         <section id="how-it-works" className="bg-white">
           <PageContainer className="py-16 sm:py-20">
             <div className="max-w-2xl">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal">How it works</p>
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">How it works</p>
               <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
                 From practical work to a shareable profile.
               </h2>
@@ -201,7 +202,7 @@ export function LandingPage() {
           <PageContainer className="py-16 sm:py-20">
             <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
               <div className="lg:sticky lg:top-24">
-                <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal">What Joby AI provides</p>
+                <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">What Joby AI provides</p>
                 <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
                   A clearer way to communicate ability.
                 </h2>
@@ -231,7 +232,7 @@ export function LandingPage() {
                 <div className="mb-5 grid h-12 w-12 place-items-center rounded-lg bg-navy text-white">
                   <Sparkles size={22} aria-hidden="true" />
                 </div>
-                <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal">Trust and transparency</p>
+                <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">Trust and transparency</p>
                 <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
                   AI assistance, without pretending to certify.
                 </h2>
@@ -268,6 +269,14 @@ export function LandingPage() {
                     label: 'AI-assisted assessment',
                     text: 'A rubric review was completed with AI assistance, not official certification.',
                   },
+                  {
+                    label: 'Human reviewed',
+                    text: 'A real authorized reviewer recorded a review. This label appears only when such a review exists.',
+                  },
+                  {
+                    label: 'External credential',
+                    text: 'A credential was checked through a documented external verification process.',
+                  },
                 ].map((status) => (
                   <div key={status.label} className="py-5 first:pt-0 last:pb-0">
                     <EvidenceStatusBadge
@@ -290,8 +299,8 @@ export function LandingPage() {
                 Create an evidence-backed profile that makes what you can do easier to understand.
               </p>
             </div>
-            <ButtonLink href="#how-it-works" size="lg" variant="secondary" className="shrink-0">
-              Explore the process
+            <ButtonLink href="/signup" size="lg" variant="secondary" className="shrink-0">
+              Create your Skills Passport
               <ArrowRight size={18} aria-hidden="true" />
             </ButtonLink>
           </PageContainer>

@@ -92,6 +92,7 @@ export type EvidenceRecord = {
   processing_status: 'pending' | 'processed' | 'failed'
   visibility: 'private' | 'public'
   created_at: string
+  updated_at: string
 }
 
 export type EvidenceSkillLink = {

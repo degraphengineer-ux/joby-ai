@@ -7,7 +7,7 @@ type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
 
 const tones = {
   navy: 'border-navy/10 bg-navy text-white',
-  teal: 'border-teal/15 bg-teal/10 text-teal',
+  teal: 'border-teal/15 bg-teal/10 text-teal-800',
   warm: 'border-navy/10 bg-warm text-navy',
   slate: 'border-navy/10 bg-slate-100 text-slatebody',
 }

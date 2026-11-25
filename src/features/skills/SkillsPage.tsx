@@ -3,6 +3,7 @@ import { LoaderCircle, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { Card } from '../../components/ui/Card'
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { EmptyState, ErrorState, LoadingState, SuccessState } from '../../components/ui/Feedback'
 import { Input } from '../../components/ui/Input'
 import { PageContainer } from '../../components/layout/PageContainer'
@@ -145,6 +146,8 @@ export function SkillsPage() {
       setIsSaving(false)
     }
   }
+
+  const skillToDelete = skills.find((skill) => skill.id === deletingId)
 
   return (
     <PageContainer className="py-8 sm:py-12">
@@ -290,44 +293,37 @@ export function SkillsPage() {
                 <p className="mt-4 text-xs text-slatebody">
                   Self-reported · Updated {new Date(skill.updated_at).toLocaleDateString()}
                 </p>
-                {deletingId === skill.id ? (
-                  <div className="mt-5 rounded-lg bg-error/5 p-3">
-                    <p className="text-sm font-semibold text-navy">Remove this skill from your profile?</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <Button
-                        variant="primary"
-                        className="bg-error hover:bg-error"
-                        disabled={isSaving}
-                        onClick={() => handleDelete(skill.id)}
-                      >
-                        {isSaving && <LoaderCircle className="animate-spin" size={16} aria-hidden="true" />}
-                        Yes, remove
-                      </Button>
-                      <Button variant="secondary" onClick={() => setDeletingId(null)}>Keep skill</Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-5 flex gap-2 border-t border-navy/10 pt-4">
-                    <Button variant="secondary" onClick={() => startEdit(skill)}>
-                      <Pencil size={16} aria-hidden="true" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="text-error hover:bg-error/5"
-                      onClick={() => { setDeletingId(skill.id); setError(null) }}
-                      aria-label={`Remove ${skill.name}`}
-                    >
-                      <Trash2 size={16} aria-hidden="true" />
-                      Remove
-                    </Button>
-                  </div>
-                )}
+                <div className="mt-5 flex gap-2 border-t border-navy/10 pt-4">
+                  <Button variant="secondary" onClick={() => startEdit(skill)} disabled={isSaving}>
+                    <Pencil size={16} aria-hidden="true" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="text-error hover:bg-error/5"
+                    onClick={() => { setDeletingId(skill.id); setError(null) }}
+                    aria-label={`Remove ${skill.name}`}
+                    disabled={isSaving}
+                  >
+                    <Trash2 size={16} aria-hidden="true" />
+                    Remove
+                  </Button>
+                </div>
               </Card>
             </li>
           ))}
         </ul>
       )}
+      <ConfirmDialog
+        open={Boolean(skillToDelete)}
+        title={`Remove ${skillToDelete?.name ?? 'this skill'} from your profile?`}
+        description="This removes the skill record from your account. This action cannot be undone."
+        confirmLabel="Remove skill"
+        cancelLabel="Keep skill"
+        isConfirming={isSaving}
+        onConfirm={() => { if (skillToDelete) void handleDelete(skillToDelete.id) }}
+        onCancel={() => setDeletingId(null)}
+      />
     </PageContainer>
   )
 }

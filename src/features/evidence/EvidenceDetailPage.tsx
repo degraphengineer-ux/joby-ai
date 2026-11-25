@@ -5,6 +5,7 @@ import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { EmptyState, ErrorState, LoadingState, SuccessState } from '../../components/ui/Feedback'
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { PageContainer } from '../../components/layout/PageContainer'
 import { PageHeading } from '../../components/layout/PageHeading'
 import { displayDatabaseError } from '../../lib/displayErrors'
@@ -212,7 +213,7 @@ export function EvidenceDetailPage() {
         <EmptyState title="Evidence not found">
           <p>This item may have been deleted, or it may not belong to your account.</p>
         </EmptyState>
-        <Link to="/evidence" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-navy hover:text-teal">
+        <Link to="/evidence" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-navy hover:text-teal-700">
           <ArrowLeft size={17} aria-hidden="true" />
           Back to evidence
         </Link>
@@ -222,7 +223,7 @@ export function EvidenceDetailPage() {
 
   return (
     <PageContainer className="max-w-4xl py-8 sm:py-12">
-      <Link to="/evidence" className="mb-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-slatebody hover:text-teal">
+      <Link to="/evidence" className="mb-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-slatebody hover:text-teal-700">
         <ArrowLeft size={17} aria-hidden="true" />
         All evidence
       </Link>
@@ -234,7 +235,7 @@ export function EvidenceDetailPage() {
             <div className="flex flex-wrap gap-2">
               <Link
                 to={`/evidence/analyze?evidence=${encodeURIComponent(evidence.id)}`}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-navy/15 bg-white px-4 text-sm font-semibold text-navy transition-colors hover:border-teal/50 hover:text-teal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-navy/15 bg-white px-4 text-sm font-semibold text-navy transition-colors hover:border-teal/50 hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
               >
                 <Sparkles size={16} aria-hidden="true" />
                 Analyze description
@@ -260,23 +261,16 @@ export function EvidenceDetailPage() {
       {success && <div className="mb-5"><SuccessState>{success}</SuccessState></div>}
       {warning && <div className="mb-5"><ErrorState>{warning}</ErrorState></div>}
 
-      {confirmDelete && (
-        <div className="mb-5 rounded-xl border border-error/20 bg-error/5 p-4">
-          <p className="font-semibold text-navy">Delete this evidence and its private file?</p>
-          <p className="mt-1 text-sm leading-6 text-slatebody">
-            Linked skills will remain; only their connections to this evidence will be removed.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button className="bg-error hover:bg-error" onClick={handleDelete} disabled={isSaving}>
-              {isSaving && <LoaderCircle className="animate-spin" size={16} aria-hidden="true" />}
-              Yes, delete evidence
-            </Button>
-            <Button variant="secondary" onClick={() => setConfirmDelete(false)} disabled={isSaving}>
-              Keep evidence
-            </Button>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Delete this evidence and its private file?"
+        description="Linked skills will remain; only their connections to this evidence will be removed."
+        confirmLabel="Delete evidence"
+        cancelLabel="Keep evidence"
+        isConfirming={isSaving}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
 
       {isEditing ? (
         <EvidenceForm
@@ -294,7 +288,9 @@ export function EvidenceDetailPage() {
             <Card className="p-5 shadow-card sm:p-6">
               <div className="flex flex-wrap gap-2">
                 <Badge tone="teal">{evidenceTypeLabels[evidence.evidence_type]}</Badge>
-                <Badge>Private</Badge>
+                <Badge tone={evidence.visibility === 'public' ? 'teal' : 'slate'}>
+                  {evidence.visibility === 'public' ? 'Public summary' : 'Private'}
+                </Badge>
                 <Badge tone="slate">{processingLabel(evidence.processing_status)}</Badge>
               </div>
               <p className="mt-5 text-xs font-bold uppercase tracking-wide text-slatebody">Description</p>
@@ -308,7 +304,7 @@ export function EvidenceDetailPage() {
                     href={evidence.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 inline-flex min-h-10 max-w-full items-center gap-2 break-all text-sm font-semibold text-teal hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                    className="mt-2 inline-flex min-h-10 max-w-full items-center gap-2 break-all text-sm font-semibold text-teal-700 hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
                     aria-label="Open submitted source URL in a new tab; it has not been independently verified"
                   >
                     {evidence.source_url}
@@ -321,7 +317,10 @@ export function EvidenceDetailPage() {
               )}
               <div className="mt-5 flex items-center gap-2 border-t border-navy/10 pt-4 text-xs text-slatebody">
                 <ShieldCheck size={16} className="shrink-0 text-teal" aria-hidden="true" />
-                Private to your account · Added {new Date(evidence.created_at).toLocaleDateString()}
+                {evidence.visibility === 'public'
+                  ? 'Only the selected summary is public; uploaded files remain private'
+                  : 'Private to your account'}
+                {' · Added '}{new Date(evidence.created_at).toLocaleDateString()}
               </div>
             </Card>
 
@@ -334,7 +333,7 @@ export function EvidenceDetailPage() {
                     if (!skill) return null
                     return (
                       <li key={link.skill_id} className="rounded-lg border border-navy/10 p-3">
-                        <Link to="/skills" className="font-semibold text-navy hover:text-teal">{skill.name}</Link>
+                        <Link to="/skills" className="font-semibold text-navy hover:text-teal-700">{skill.name}</Link>
                         {link.relationship_note && (
                           <p className="mt-1 text-sm leading-6 text-slatebody">{link.relationship_note}</p>
                         )}
@@ -373,7 +372,7 @@ export function EvidenceDetailPage() {
                         href={signedUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm font-bold text-teal underline hover:text-navy"
+                        className="text-sm font-bold text-teal-700 underline hover:text-navy"
                       >
                         Open private file
                       </a>

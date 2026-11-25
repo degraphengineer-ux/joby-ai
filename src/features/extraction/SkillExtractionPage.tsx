@@ -261,7 +261,7 @@ export function SkillExtractionPage() {
                   {availableEvidence.length === 0 && (
                     <p className="mt-2 text-sm text-slatebody">
                       No saved evidence description is within the 20–{MAX_EXTRACTION_INPUT_CHARS.toLocaleString()} character analysis limit yet.{' '}
-                      <Link to="/evidence" className="font-semibold text-teal underline">Add or edit evidence</Link>
+                      <Link to="/evidence" className="font-semibold text-teal-700 underline">Add or edit evidence</Link>
                       {' '}or switch to pasted text.
                     </p>
                   )}

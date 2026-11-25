@@ -11,15 +11,18 @@ import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { AssessmentDetailPage } from '../features/assessments/AssessmentDetailPage'
 import { AssessmentResultsPage } from '../features/assessments/AssessmentResultsPage'
 import { AssessmentsPage } from '../features/assessments/AssessmentsPage'
-import { ComingSoonPage } from '../features/common/ComingSoonPage'
 import { EvidencePage } from '../features/evidence/EvidencePage'
 import { EvidenceDetailPage } from '../features/evidence/EvidenceDetailPage'
 import { SkillExtractionPage } from '../features/extraction/SkillExtractionPage'
+import { PassportPage } from '../features/passport/PassportPage'
+import { PublicPassportPage } from '../features/passport/PublicPassportPage'
+import { SettingsPage } from '../features/settings/SettingsPage'
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/p/:slug" element={<PublicPassportPage />} />
       <Route
         path="/login"
         element={
@@ -53,8 +56,8 @@ export function AppRoutes() {
         <Route path="/assessments" element={<AssessmentsPage />} />
         <Route path="/assessments/results/:attemptId" element={<AssessmentResultsPage />} />
         <Route path="/assessments/:assessmentId" element={<AssessmentDetailPage />} />
-        <Route path="/passport" element={<ComingSoonPage route="passport" />} />
-        <Route path="/settings" element={<ComingSoonPage route="settings" />} />
+        <Route path="/passport" element={<PassportPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

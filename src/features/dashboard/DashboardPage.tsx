@@ -1,10 +1,11 @@
 import { ArrowRight, Award, BriefcaseBusiness, FileText, Plus, Sparkles } from 'lucide-react'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/Feedback'
+import { StatCard } from '../../components/ui/StatCard'
 import { PageContainer } from '../../components/layout/PageContainer'
 import { PageHeading } from '../../components/layout/PageHeading'
 import { displayDatabaseError } from '../../lib/displayErrors'
@@ -43,10 +44,10 @@ function recommendation(data: DashboardData) {
   }
   if (data.evidenceCount === 0) {
     return {
-      title: 'Plan your evidence',
-      body: 'Evidence tools are not part of this phase yet. Your skills are saved and ready to connect later.',
+      title: 'Add a work sample',
+      body: 'Connect a project, work description or other evidence to give your skills more context.',
       href: '/evidence',
-      label: 'View evidence status',
+      label: 'Add evidence',
       icon: FileText,
     }
   }
@@ -118,7 +119,7 @@ export function DashboardPage() {
                   Add a headline, short bio, target role and at least one skill to give your profile helpful context.
                 </p>
               </div>
-              <Link to="/profile" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-navy/15 px-4 text-sm font-semibold text-navy hover:border-teal/50 hover:text-teal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal">
+              <Link to="/profile" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-navy/15 px-4 text-sm font-semibold text-navy hover:border-teal/50 hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal">
                 Edit profile
                 <ArrowRight size={17} aria-hidden="true" />
               </Link>
@@ -126,9 +127,9 @@ export function DashboardPage() {
           </section>
 
           <section aria-label="Account totals" className="grid gap-4 sm:grid-cols-3">
-            <MetricCard label="Skills" count={data.skillCount} href="/skills" icon={<Sparkles size={19} aria-hidden="true" />} />
-            <MetricCard label="Evidence items" count={data.evidenceCount} href="/evidence" icon={<FileText size={19} aria-hidden="true" />} />
-            <MetricCard label="Completed assessments" count={data.completedAssessmentCount} href="/assessments" icon={<Award size={19} aria-hidden="true" />} />
+            <StatCard label="Skills" value={data.skillCount} href="/skills" icon={<Sparkles size={19} aria-hidden="true" />} />
+            <StatCard label="Evidence items" value={data.evidenceCount} href="/evidence" icon={<FileText size={19} aria-hidden="true" />} />
+            <StatCard label="Completed assessments" value={data.completedAssessmentCount} href="/assessments" icon={<Award size={19} aria-hidden="true" />} />
           </section>
 
           {next && NextIcon && (
@@ -139,7 +140,7 @@ export function DashboardPage() {
                     <NextIcon size={21} aria-hidden="true" />
                   </span>
                   <div>
-                    <p className="text-sm font-bold text-teal">Recommended next step</p>
+                    <p className="text-sm font-bold text-teal-200">Recommended next step</p>
                     <h2 className="mt-1 text-xl font-bold">{next.title}</h2>
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">{next.body}</p>
                   </div>
@@ -166,7 +167,7 @@ export function DashboardPage() {
                   {data.activities.map((activity) => (
                     <li key={activity.id} className="flex items-center justify-between gap-4 px-4 py-4 sm:px-5">
                       <div className="min-w-0">
-                        <Link to={activity.href} className="break-words text-sm font-semibold text-navy hover:text-teal">
+                        <Link to={activity.href} className="break-words text-sm font-semibold text-navy hover:text-teal-700">
                           {activity.label}
                         </Link>
                         <p className="mt-1 text-xs text-slatebody">
@@ -193,7 +194,7 @@ export function DashboardPage() {
               <div className="space-y-3">
                 <QuickAction href="/skills" label="Add a skill" detail="Record a skill you use" />
                 <QuickAction href="/assessments" label="Start an assessment" detail="Explore practical tasks" />
-                <QuickAction href="/evidence" label="Add evidence" detail="Evidence tools are coming in a later phase" />
+                <QuickAction href="/evidence" label="Add evidence" detail="Add a project link, file or work description" />
               </div>
               <p className="mt-4 text-xs leading-5 text-slatebody">
                 Assessment feedback will be AI-assisted and advisory, not an official certification.
@@ -209,37 +210,13 @@ export function DashboardPage() {
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Button onClick={() => window.location.reload()}>Reload dashboard</Button>
-            <Link to="/onboarding" className="inline-flex min-h-10 items-center text-sm font-semibold text-teal hover:text-navy">
+            <Link to="/onboarding" className="inline-flex min-h-10 items-center text-sm font-semibold text-teal-700 hover:text-navy">
               Continue profile setup
             </Link>
           </div>
         </Card>
       )}
     </PageContainer>
-  )
-}
-
-function MetricCard({
-  label,
-  count,
-  href,
-  icon,
-}: {
-  label: string
-  count: number
-  href: string
-  icon: ReactNode
-}) {
-  return (
-    <Link to={href} className="group rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal">
-      <Card className="flex h-full items-center gap-4 p-5 shadow-card transition-colors group-hover:border-teal/30">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-teal/10 text-teal">{icon}</span>
-        <span className="min-w-0">
-          <span className="block text-2xl font-bold text-navy">{count}</span>
-          <span className="block text-sm text-slatebody">{label}</span>
-        </span>
-      </Card>
-    </Link>
   )
 }
 

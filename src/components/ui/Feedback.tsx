@@ -18,7 +18,29 @@ export function ErrorState({ children }: { children: ReactNode }) {
 
 export function SuccessState({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-success/20 bg-success/5 p-4 text-sm leading-6 text-success" role="status">
+    <div className="rounded-xl border border-success/20 bg-success/5 p-4 text-sm leading-6 text-success" role="status" aria-live="polite">
+      {children}
+    </div>
+  )
+}
+
+export function Toast({
+  children,
+  tone = 'success',
+}: {
+  children: ReactNode
+  tone?: 'success' | 'error'
+}) {
+  const styles = tone === 'error'
+    ? 'border-error/20 bg-error/5 text-error'
+    : 'border-success/20 bg-success/5 text-success'
+
+  return (
+    <div
+      className={`rounded-lg border px-4 py-3 text-sm leading-6 ${styles}`}
+      role={tone === 'error' ? 'alert' : 'status'}
+      aria-live={tone === 'error' ? 'assertive' : 'polite'}
+    >
       {children}
     </div>
   )

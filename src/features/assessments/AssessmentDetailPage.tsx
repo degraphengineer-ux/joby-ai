@@ -131,7 +131,7 @@ export function AssessmentDetailPage() {
       <PageContainer className="max-w-3xl py-10">
         {error && <ErrorState>{error}</ErrorState>}
         {!error && <ErrorState>This assessment is not available.</ErrorState>}
-        <Link to="/assessments" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-navy hover:text-teal">
+        <Link to="/assessments" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-navy hover:text-teal-700">
           <ArrowLeft size={17} aria-hidden="true" />
           Back to assessments
         </Link>
@@ -143,7 +143,7 @@ export function AssessmentDetailPage() {
 
   return (
     <PageContainer className="max-w-4xl py-8 sm:py-12">
-      <Link to="/assessments" className="mb-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-slatebody hover:text-teal">
+      <Link to="/assessments" className="mb-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-slatebody hover:text-teal-700">
         <ArrowLeft size={17} aria-hidden="true" />
         All assessments
       </Link>

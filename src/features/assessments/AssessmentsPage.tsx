@@ -81,7 +81,7 @@ export function AssessmentsPage() {
                 </p>
                 <Link
                   to={`/assessments/${assessment.id}`}
-                  className="mt-5 inline-flex min-h-11 items-center gap-2 self-start rounded-lg border border-navy/15 px-4 text-sm font-bold text-navy hover:border-teal/50 hover:text-teal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                  className="mt-5 inline-flex min-h-11 items-center gap-2 self-start rounded-lg border border-navy/15 px-4 text-sm font-bold text-navy hover:border-teal/50 hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
                 >
                   Review task and rubric
                   <ArrowRight size={17} aria-hidden="true" />

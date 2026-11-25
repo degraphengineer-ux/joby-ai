@@ -1,11 +1,18 @@
 type EvidenceStatusBadgeProps = {
-  label: 'Self-reported' | 'Evidence submitted' | 'AI-assisted assessment'
+  label:
+    | 'Self-reported'
+    | 'Evidence submitted'
+    | 'AI-assisted assessment'
+    | 'Human reviewed'
+    | 'External credential'
 }
 
 const dotStyles = {
   'Self-reported': 'bg-slate-400',
   'Evidence submitted': 'bg-teal',
   'AI-assisted assessment': 'bg-navy',
+  'Human reviewed': 'bg-success',
+  'External credential': 'bg-warning',
 }
 
 export function EvidenceStatusBadge({ label }: EvidenceStatusBadgeProps) {

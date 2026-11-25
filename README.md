@@ -1,6 +1,6 @@
 # Joby AI
 
-Joby AI is an evidence-first skills validation and digital portfolio frontend. It helps people present practical work and assessment context rather than relying only on formal certificates.
+Joby AI is an evidence-first skills profile and practical assessment platform. Candidates can manage skills and evidence, complete AI-assisted rubric assessments, and choose what to include in a shareable Skills Passport.
 
 ## Technology
 
@@ -10,6 +10,8 @@ Joby AI is an evidence-first skills validation and digital portfolio frontend. I
 - Tailwind CSS
 - React Router
 - Lucide React
+- Supabase Auth, Postgres and private Storage
+- Zod validation
 
 ## Run locally
 
@@ -18,7 +20,7 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite, normally `http://localhost:5173`.
+Open the local URL printed by Vite, normally `http://localhost:5173`. Configure the Supabase project URL and publishable key in `.env.local`; never expose service-role or Gemini keys in browser variables.
 
 ## Quality checks
 
@@ -27,4 +29,8 @@ npm run lint
 npm run build
 ```
 
-This phase provides the frontend foundation and landing page only. Authentication, Supabase, Gemini integration and backend functionality are not implemented.
+See [Supabase setup, migrations and security notes](./supabase/README.md) before deploying database or Edge Function changes. Public passports use a server-side allowlist, include only explicitly public evidence summaries, and never include private files or assessment submissions.
+
+## Account and privacy settings
+
+The protected `/settings` page supports password updates, public-passport sharing controls, and sign-out. Account deletion is currently handled manually by the team operating the Supabase project; there is no in-app deletion request or configured support contact in this MVP. Do not send passwords or identity documents when requesting deletion.

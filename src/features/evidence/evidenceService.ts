@@ -9,7 +9,7 @@ import type {
 } from './evidenceSchema'
 
 const evidenceColumns =
-  'id,user_id,title,evidence_type,description,source_url,storage_path,mime_type,processing_status,visibility,created_at'
+  'id,user_id,title,evidence_type,description,source_url,storage_path,mime_type,processing_status,visibility,created_at,updated_at'
 const evidenceBucket = 'evidence'
 const signedUrlLifetimeSeconds = 60
 
@@ -316,6 +316,9 @@ export async function updateEvidence(
 
   const evidence = data as EvidenceRecord
   const warnings: string[] = []
+  if (existing.visibility === 'public') {
+    warnings.push('The updated evidence was made private. Review it and re-enable its public summary from your Skills Passport if desired.')
+  }
   if (existing.storage_path && existing.storage_path !== nextStoragePath) {
     try {
       await removePrivateFile(existing.storage_path)
