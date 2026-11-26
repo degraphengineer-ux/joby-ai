@@ -12,6 +12,7 @@ import { VisibilityToggle } from '../../components/ui/VisibilityToggle'
 import { displayDatabaseError } from '../../lib/displayErrors'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../auth/useAuth'
+import { ProfileDetails } from '../profile/ProfileDetails'
 import { getProfile } from '../profile/profileService'
 import { setPassportSharing } from '../passport/passportService'
 
@@ -34,6 +35,7 @@ export function SettingsPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null)
   const [isSavingPassword, setIsSavingPassword] = useState(false)
+  const [isEditingPassword, setIsEditingPassword] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [isPublic, setIsPublic] = useState<boolean | null>(null)
   const [isLoadingPrivacy, setIsLoadingPrivacy] = useState(true)
@@ -127,6 +129,7 @@ export function SettingsPage() {
       if (error) throw error
       setPasswordDraft(emptyPassword())
       setPasswordSuccess('Your password has been updated.')
+      setIsEditingPassword(false)
     } catch (cause) {
       setPasswordError(displayDatabaseError(cause))
     } finally {
@@ -163,15 +166,12 @@ export function SettingsPage() {
             <div className="min-w-0 flex-1">
               <h2 id="profile-settings-heading" className="text-lg font-bold text-navy">Profile details</h2>
               <p className="mt-1 text-sm leading-6 text-slatebody">
-                Your email is used to sign in. Update your public-facing profile details separately.
+                Your email is used to sign in. Profile details below remain private unless you choose to share them.
               </p>
               <p className="mt-4 break-all text-sm font-medium text-navy">{user?.email ?? 'No email address available'}</p>
-              <Link
-                to="/profile"
-                className="mt-4 inline-flex min-h-11 items-center rounded-lg border border-navy/15 px-4 text-sm font-semibold text-navy hover:border-teal/50 hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
-              >
-                Edit profile details
-              </Link>
+              <div className="mt-6 border-t border-navy/10 pt-5">
+                <ProfileDetails />
+              </div>
             </div>
           </div>
         </Card>
@@ -188,38 +188,69 @@ export function SettingsPage() {
               </p>
               {passwordError && <div className="mt-4"><ErrorState>{passwordError}</ErrorState></div>}
               {passwordSuccess && <div className="mt-4"><Toast>{passwordSuccess}</Toast></div>}
-              <form className="mt-5 max-w-xl space-y-4" onSubmit={handlePasswordSubmit} noValidate>
-                <div>
-                  <Input
-                    label="New password"
-                    name="new-password"
-                    type="password"
-                    autoComplete="new-password"
-                    value={passwordDraft.password}
-                    onChange={(event) => setPasswordDraft((current) => ({ ...current, password: event.target.value }))}
-                    aria-invalid={Boolean(passwordErrors.password)}
-                    aria-describedby={passwordErrors.password ? 'settings-password-error' : undefined}
-                  />
-                  {passwordErrors.password && <p id="settings-password-error" className="mt-1 text-sm text-error">{passwordErrors.password}</p>}
-                </div>
-                <div>
-                  <Input
-                    label="Confirm new password"
-                    name="confirm-new-password"
-                    type="password"
-                    autoComplete="new-password"
-                    value={passwordDraft.confirmation}
-                    onChange={(event) => setPasswordDraft((current) => ({ ...current, confirmation: event.target.value }))}
-                    aria-invalid={Boolean(passwordErrors.confirmation)}
-                    aria-describedby={passwordErrors.confirmation ? 'settings-confirmation-error' : undefined}
-                  />
-                  {passwordErrors.confirmation && <p id="settings-confirmation-error" className="mt-1 text-sm text-error">{passwordErrors.confirmation}</p>}
-                </div>
-                <Button type="submit" disabled={isSavingPassword}>
-                  {isSavingPassword && <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />}
-                  Update password
+              {isEditingPassword ? (
+                <form className="mt-5 max-w-xl space-y-4" onSubmit={handlePasswordSubmit} noValidate>
+                  <div>
+                    <Input
+                      label="New password"
+                      name="new-password"
+                      type="password"
+                      autoComplete="new-password"
+                      value={passwordDraft.password}
+                      onChange={(event) => setPasswordDraft((current) => ({ ...current, password: event.target.value }))}
+                      aria-invalid={Boolean(passwordErrors.password)}
+                      aria-describedby={passwordErrors.password ? 'settings-password-error' : undefined}
+                    />
+                    {passwordErrors.password && <p id="settings-password-error" className="mt-1 text-sm text-error">{passwordErrors.password}</p>}
+                  </div>
+                  <div>
+                    <Input
+                      label="Confirm new password"
+                      name="confirm-new-password"
+                      type="password"
+                      autoComplete="new-password"
+                      value={passwordDraft.confirmation}
+                      onChange={(event) => setPasswordDraft((current) => ({ ...current, confirmation: event.target.value }))}
+                      aria-invalid={Boolean(passwordErrors.confirmation)}
+                      aria-describedby={passwordErrors.confirmation ? 'settings-confirmation-error' : undefined}
+                    />
+                    {passwordErrors.confirmation && <p id="settings-confirmation-error" className="mt-1 text-sm text-error">{passwordErrors.confirmation}</p>}
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={isSavingPassword}
+                      onClick={() => {
+                        setPasswordDraft(emptyPassword())
+                        setPasswordErrors({})
+                        setPasswordError(null)
+                        setPasswordSuccess(null)
+                        setIsEditingPassword(false)
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSavingPassword}>
+                      {isSavingPassword && <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />}
+                      Update password
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <Button
+                  className="mt-5"
+                  variant="secondary"
+                  onClick={() => {
+                    setPasswordError(null)
+                    setPasswordSuccess(null)
+                    setIsEditingPassword(true)
+                  }}
+                >
+                  <KeyRound size={17} aria-hidden="true" />
+                  Change password
                 </Button>
-              </form>
+              )}
             </div>
           </div>
         </Card>
