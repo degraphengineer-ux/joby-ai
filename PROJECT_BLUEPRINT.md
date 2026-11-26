@@ -1,4 +1,4 @@
-# SkillProof AI
+# Joby AI
 
 ## Hackathon Product Blueprint & GitHub Copilot Implementation Specification
 
@@ -25,7 +25,7 @@ An AI-assisted skills validation and digital portfolio platform that helps peopl
 
 **Show what you can do, not only what documents you have.**
 
-SkillProof AI helps a person turn work samples, projects, experience and practical assessment results into a clear, shareable skills profile. It does not replace official qualification recognition, professional licensing or employer verification.
+Joby AI helps a person turn work samples, projects, experience and practical assessment results into a clear, shareable skills profile. It does not replace official qualification recognition, professional licensing or employer verification.
 
 ## 1.4 Hackathon alignment
 
@@ -41,7 +41,7 @@ The selected project addresses **Track 1: Credential & Skills Validation**. The 
 - Credential Mapper: aligning foreign degrees with local standards.
 - Bridging Stipend Portal: connecting micro-assessments to exam waivers.
 
-SkillProof AI focuses on the first example: evidence-backed skills profiles and practical competency assessment. Repository analysis is a useful extension, but the MVP must support people who are not software developers too.
+Joby AI focuses on the first example: evidence-backed skills profiles and practical competency assessment. Repository analysis is a useful extension, but the MVP must support people who are not software developers too.
 
 The presentation's evaluation benchmarks are:
 
@@ -51,7 +51,7 @@ The presentation's evaluation benchmarks are:
 4. Social and SDG impact: demonstrate measurable progress against SDGs 4, 8, 10, 16 and 17.
 5. Scalability: make the solution repeatable across cohorts with low manual overhead.
 
-**Scope note:** SkillProof AI primarily targets benchmark 1, and supports benchmarks 3, 4 and 5 through practical evidence, employer-readable profiles, impact measurement and repeatable assessment workflows. It does not claim to solve work authorization or banking requirements. Those belong to Track 2 and should not be represented as completed features.
+**Scope note:** Joby AI primarily targets benchmark 1, and supports benchmarks 3, 4 and 5 through practical evidence, employer-readable profiles, impact measurement and repeatable assessment workflows. It does not claim to solve work authorization or banking requirements. Those belong to Track 2 and should not be represented as completed features.
 
 ---
 
@@ -85,7 +85,7 @@ This is a product hypothesis to validate with users and employers, not a guarant
 
 # 3. Solution
 
-SkillProof AI provides a guided workflow:
+Joby AI provides a guided workflow:
 
 1. **Create a profile:** The user describes their background, target role and skills.
 2. **Add evidence:** The user uploads a CV, work sample, project link, code repository or certificate if available.
@@ -1516,7 +1516,7 @@ Keep a prepared demo account and sample data available. Do not depend on a slow 
 
 # 19. Hackathon Project Summary
 
-**SkillProof AI** is an AI-assisted skills validation and digital portfolio platform built under Track 1: Credential & Skills Validation. It helps displaced and underserved job seekers demonstrate practical competencies through work evidence, structured assessments and a shareable Skills Passport. Users can submit project descriptions, documents or portfolio links, review AI-extracted skill suggestions, complete practical assessments and present transparent evidence labels to opportunity providers. The platform supports skills visibility without treating AI assessments as official certification.
+**Joby AI** is an AI-assisted skills validation and digital portfolio platform built under Track 1: Credential & Skills Validation. It helps displaced and underserved job seekers demonstrate practical competencies through work evidence, structured assessments and a shareable Skills Passport. Users can submit project descriptions, documents or portfolio links, review AI-extracted skill suggestions, complete practical assessments and present transparent evidence labels to opportunity providers. The platform supports skills visibility without treating AI assessments as official certification.
 
 ---
 
