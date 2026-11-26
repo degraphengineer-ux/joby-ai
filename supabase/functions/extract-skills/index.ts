@@ -1,8 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { z } from 'https://esm.sh/zod@4.6.7'
 import type { EdgeFunctionDatabase } from '../_shared/database.ts'
-import * as pdfjs from 'npm:pdfjs-dist@5.4.624/legacy/build/pdf.mjs'
 import { fetchGitHubRepositoryEvidence } from '../_shared/githubRepository.ts'
+import { getPdfJs } from '../_shared/pdfJsRuntime.ts'
 import {
   extractPdfText,
   MAX_EXTRACTED_TEXT_CHARS,
@@ -550,6 +550,7 @@ Deno.serve(async (request: Request) => {
         )
       }
 
+      const pdfjs = await getPdfJs()
       const pdfResult = await extractPdfText(
         new Uint8Array(await pdfFile.arrayBuffer()),
         pdfjs,

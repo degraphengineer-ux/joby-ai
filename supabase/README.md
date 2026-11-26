@@ -72,7 +72,7 @@ Phase 11 seeds fixed-rubric `data_analysis` and `customer_support` categories. T
 
 The private `/passport` page can export the current preview to PDF in the browser. The generated document includes private profile/evidence summaries and assessment feedback shown on that preview, but omits storage paths, uploaded file contents, reviewer notes and account identifiers. The candidate must treat the exported PDF as private.
 
-Run `supabase/tests/phase_11_integrations_test.sql` in a dedicated test project after applying all migrations. It checks category seeds, aggregate correctness, reviewer privileges, RLS and the non-content AI log schema. Frontend and parsing tests run with `npm test`; never run SQL integration checks against production data.
+Run `supabase/tests/phase_11_integrations_test.sql` in a dedicated test project after applying all migrations. It checks category seeds, aggregate correctness, reviewer privileges, RLS and the non-content AI log schema. Frontend and parsing tests run with `npm test`; the Edge PDF.js runtime test runs with `npx deno@2.1.4 test --no-lock tests/phase11/pdfJsRuntime_test.ts`. Never run SQL integration checks against production data.
 
 ## Skills Passport and public sharing
 
