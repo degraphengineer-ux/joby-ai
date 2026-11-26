@@ -37,6 +37,7 @@ function toInput(evidence: EvidenceRecord, links: EvidenceSkillLink[]): Evidence
     source_url: evidence.source_url ?? '',
     skill_ids: links.map((link) => link.skill_id),
     relationship_note: links.find((link) => link.relationship_note)?.relationship_note ?? '',
+    reviewer_consent: evidence.reviewer_consent,
   }
 }
 

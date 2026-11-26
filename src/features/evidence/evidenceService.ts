@@ -9,7 +9,7 @@ import type {
 } from './evidenceSchema'
 
 const evidenceColumns =
-  'id,user_id,title,evidence_type,description,source_url,storage_path,mime_type,processing_status,visibility,created_at,updated_at'
+  'id,user_id,title,evidence_type,description,source_url,storage_path,mime_type,processing_status,visibility,reviewer_consent,created_at,updated_at'
 const evidenceBucket = 'evidence'
 const signedUrlLifetimeSeconds = 60
 
@@ -232,6 +232,7 @@ export async function createEvidence(
       mime_type: uploaded?.mimeType ?? null,
       processing_status: 'pending',
       visibility: 'private',
+      reviewer_consent: input.reviewer_consent,
     })
     .select(evidenceColumns)
     .single()
@@ -295,6 +296,7 @@ export async function updateEvidence(
       storage_path: nextStoragePath,
       mime_type: nextMimeType,
       visibility: 'private',
+      reviewer_consent: input.reviewer_consent,
     })
     .eq('id', evidenceId)
     .eq('user_id', userId)

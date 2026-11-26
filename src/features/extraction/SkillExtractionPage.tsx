@@ -15,6 +15,7 @@ import { createSkill } from '../skills/skillsService'
 import { proficiencyLevels, skillSchema, type SkillInput } from '../skills/skillSchema'
 import { listEvidence, linkSkillToEvidence } from '../evidence/evidenceService'
 import { evidenceTypeLabels, type EvidenceRecord } from '../evidence/evidenceSchema'
+import { parseGitHubRepositoryUrl } from '../evidence/githubRepository'
 import { extractSkills, ExtractionError } from './extractionService'
 import {
   extractionRequestSchema,
@@ -25,6 +26,23 @@ import {
 
 type SourceMode = 'text' | 'evidence'
 
+function getEvidenceAnalysisIssue(item: EvidenceRecord): string | null {
+  if (item.evidence_type === 'document') {
+    return item.storage_path && item.mime_type === 'application/pdf'
+      ? null
+      : 'Only an uploaded PDF can be analyzed'
+  }
+  if (item.evidence_type === 'github_url') {
+    return parseGitHubRepositoryUrl(item.source_url ?? '')
+      ? null
+      : 'Enter a public GitHub repository URL'
+  }
+  const length = item.description?.trim().length ?? 0
+  if (length < 20) return 'Add at least 20 characters to the description'
+  if (length > MAX_EXTRACTION_INPUT_CHARS) return 'Description exceeds the analysis limit'
+  return null
+}
+
 export function SkillExtractionPage() {
   const { user } = useAuth()
   const [searchParams] = useSearchParams()
@@ -32,6 +50,7 @@ export function SkillExtractionPage() {
     () => searchParams.get('evidence') ? 'evidence' : 'text',
   )
   const [text, setText] = useState('')
+  const [consentToExternalAi, setConsentToExternalAi] = useState(false)
   const [selectedEvidenceId, setSelectedEvidenceId] = useState(
     () => searchParams.get('evidence') ?? '',
   )
@@ -67,11 +86,20 @@ export function SkillExtractionPage() {
     setError(null)
     const request = sourceMode === 'text'
       ? { source: 'text' as const, text }
-      : { source: 'evidence' as const, evidence_id: selectedEvidenceId }
+      : { source: 'evidence' as const, evidence_id: selectedEvidenceId, consent_to_ai_processing: true as const }
     const validated = extractionRequestSchema.safeParse(request)
 
     if (!validated.success) {
       setError(validated.error.issues[0]?.message ?? 'Provide text or select an evidence item.')
+      return
+    }
+    if (
+      sourceMode === 'evidence' &&
+      selectedEvidence &&
+      ['document', 'github_url'].includes(selectedEvidence.evidence_type) &&
+      !consentToExternalAi
+    ) {
+      setError('Confirm that this PDF text or public GitHub evidence may be sent to Gemini for analysis.')
       return
     }
 
@@ -124,14 +152,15 @@ export function SkillExtractionPage() {
     return undefined
   }
 
-  const availableEvidence = evidence.filter((item) => {
-    const length = item.description?.trim().length ?? 0
-    return length >= 20 && length <= MAX_EXTRACTION_INPUT_CHARS
-  })
+  const availableEvidence = evidence.filter((item) => !getEvidenceAnalysisIssue(item))
   const selectedEvidence = evidence.find((item) => item.id === selectedEvidenceId)
-  const selectedDescriptionLength = selectedEvidence?.description?.trim().length ?? 0
-  const selectedEvidenceReady =
-    selectedDescriptionLength >= 20 && selectedDescriptionLength <= MAX_EXTRACTION_INPUT_CHARS
+  const selectedEvidenceIssue = selectedEvidence
+    ? getEvidenceAnalysisIssue(selectedEvidence)
+    : 'Select an evidence item'
+  const selectedEvidenceReady = Boolean(selectedEvidence && !selectedEvidenceIssue)
+  const requiresExternalConsent =
+    selectedEvidence?.evidence_type === 'document' ||
+    selectedEvidence?.evidence_type === 'github_url'
   const inputLength = sourceMode === 'text' ? text.length : undefined
 
   return (
@@ -142,7 +171,7 @@ export function SkillExtractionPage() {
       />
 
       <div className="mb-6 rounded-xl border border-teal/20 bg-teal/5 p-4 text-sm leading-6 text-navy">
-        <strong>Privacy and limits:</strong> Analysis sends only the text you provide or the description from evidence you select to Gemini. URLs are not fetched, uploaded files are not read, and submitted analysis text is not stored in your Joby AI database. Do not include passwords, identity numbers, or information you do not want processed by the AI provider.
+        <strong>Privacy and limits:</strong> Text you submit is sent to Gemini and is not stored in your Joby AI database. For PDFs, only a bounded amount of text is extracted from the private file for this request; scanned-image OCR is not supported. For GitHub, only public repository metadata and the root README are retrieved through GitHub’s API. Submitted code is never fetched or executed. Do not include passwords, identity numbers, or information you do not want processed by the AI provider.
       </div>
 
       {loadError && <div className="mb-5"><ErrorState>{loadError}</ErrorState></div>}
@@ -193,7 +222,7 @@ export function SkillExtractionPage() {
                   onChange={() => { setSourceMode('evidence'); setError(null) }}
                   className="h-4 w-4 accent-teal"
                 />
-                Use saved evidence description
+                Use saved evidence
               </label>
             </div>
           </fieldset>
@@ -224,7 +253,7 @@ export function SkillExtractionPage() {
           ) : (
             <div>
               <label htmlFor="evidence-selection" className="block text-sm font-semibold text-navy">
-                Evidence description
+              Evidence item
               </label>
               {isLoadingEvidence ? (
                 <div className="mt-2"><LoadingState label="Loading your evidence..." /></div>
@@ -234,46 +263,67 @@ export function SkillExtractionPage() {
                     id="evidence-selection"
                     name="evidence_id"
                     value={selectedEvidenceId}
-                    onChange={(event) => { setSelectedEvidenceId(event.target.value); setError(null) }}
+                    onChange={(event) => {
+                      setSelectedEvidenceId(event.target.value)
+                      setConsentToExternalAi(false)
+                      setError(null)
+                    }}
                     disabled={Boolean(loadError)}
                     className="mt-2 min-h-11 w-full rounded-lg border border-navy/15 bg-white px-3.5 text-base text-navy outline-none focus:border-teal focus:ring-4 focus:ring-teal/10"
                   >
-                    <option value="">Choose evidence with a description</option>
+                    <option value="">Choose evidence to analyze</option>
                     {evidence.map((item) => (
                       <option
                         key={item.id}
                         value={item.id}
-                        disabled={
-                          (item.description?.trim().length ?? 0) < 20 ||
-                          (item.description?.trim().length ?? 0) > MAX_EXTRACTION_INPUT_CHARS
-                        }
+                        disabled={Boolean(getEvidenceAnalysisIssue(item))}
                       >
-                        {item.title} — {
-                          (item.description?.trim().length ?? 0) < 20
-                            ? 'Add at least 20 characters to description'
-                            : (item.description?.trim().length ?? 0) > MAX_EXTRACTION_INPUT_CHARS
-                              ? 'Description exceeds the analysis limit'
-                              : evidenceTypeLabels[item.evidence_type]
-                        }
+                        {item.title} — {getEvidenceAnalysisIssue(item) ?? evidenceTypeLabels[item.evidence_type]}
                       </option>
                     ))}
                   </select>
                   {availableEvidence.length === 0 && (
                     <p className="mt-2 text-sm text-slatebody">
-                      No saved evidence description is within the 20–{MAX_EXTRACTION_INPUT_CHARS.toLocaleString()} character analysis limit yet.{' '}
+                      No saved evidence is ready for analysis. Add a sufficiently detailed description, upload a PDF, or save a public GitHub repository.{' '}
                       <Link to="/evidence" className="font-semibold text-teal-700 underline">Add or edit evidence</Link>
                       {' '}or switch to pasted text.
                     </p>
                   )}
-                  {selectedEvidenceId && selectedEvidence && !selectedEvidenceReady && (
+                  {selectedEvidenceId && selectedEvidence && selectedEvidenceIssue && (
                     <p className="mt-2 text-sm text-warning">
-                      The description must contain between 20 and {MAX_EXTRACTION_INPUT_CHARS.toLocaleString()} characters to be analyzed.
+                      {selectedEvidenceIssue}.
                     </p>
                   )}
-                  {selectedEvidenceId && selectedEvidence?.description && selectedEvidenceReady && (
+                  {selectedEvidence && selectedEvidenceReady && selectedEvidence.evidence_type === 'github_url' && (
                     <p className="mt-2 text-sm leading-6 text-slatebody">
-                      Only your saved description is sent. The source URL and private file are never fetched or included.
+                      Only the public repository metadata and root README are retrieved. Other files are not fetched, code is not executed, and authorship is not verified.
                     </p>
+                  )}
+                  {selectedEvidence && selectedEvidenceReady && selectedEvidence.evidence_type === 'document' && (
+                    <p className="mt-2 text-sm leading-6 text-slatebody">
+                      The PDF remains in private storage. Its bounded extracted text is sent to Gemini for this request only; it is not saved to your evidence record.
+                    </p>
+                  )}
+                  {selectedEvidence && selectedEvidenceReady &&
+                    !['document', 'github_url'].includes(selectedEvidence.evidence_type) && (
+                    <p className="mt-2 text-sm leading-6 text-slatebody">
+                      Only your saved description is sent. The source URL and private file are not fetched or included.
+                    </p>
+                  )}
+                  {requiresExternalConsent && selectedEvidenceReady && (
+                    <label className="mt-4 flex items-start gap-3 rounded-lg border border-navy/10 bg-warm p-4 text-sm leading-6 text-navy">
+                      <input
+                        type="checkbox"
+                        checked={consentToExternalAi}
+                        onChange={(event) => setConsentToExternalAi(event.target.checked)}
+                        className="mt-1 h-4 w-4 shrink-0 rounded border-navy/30 text-teal focus:ring-teal"
+                      />
+                      <span>
+                        I agree to send {selectedEvidence.evidence_type === 'document'
+                          ? 'text extracted from this private PDF'
+                          : 'the retrieved public repository README and metadata'} to Gemini for skill suggestions.
+                      </span>
+                    </label>
                   )}
                 </>
               )}
@@ -289,7 +339,11 @@ export function SkillExtractionPage() {
               size="lg"
               disabled={
                 isProcessing ||
-                (sourceMode === 'evidence' && (isLoadingEvidence || Boolean(loadError) || !selectedEvidenceReady))
+                (sourceMode === 'evidence' &&
+                  (isLoadingEvidence ||
+                    Boolean(loadError) ||
+                    !selectedEvidenceReady ||
+                    (requiresExternalConsent && !consentToExternalAi)))
               }
             >
               {isProcessing
@@ -309,6 +363,41 @@ export function SkillExtractionPage() {
               These are possibilities inferred from the submitted text, not verified skills or qualifications. Choose which, if any, to save.
             </p>
           </div>
+
+          {result.source_info.availability !== 'available' && (
+            <div className="rounded-xl border border-warning/20 bg-warning/5 p-4 text-sm leading-6 text-navy" role="status">
+              {result.source_info.availability === 'unavailable'
+                ? 'The selected source was unavailable, so no content was analyzed.'
+                : 'The retrieved source did not contain enough evidence for skill suggestions.'}
+            </div>
+          )}
+          {result.source_info.repository_url && (
+            <p className="text-sm text-slatebody">
+              Public repository analyzed:{' '}
+              <a
+                href={result.source_info.repository_url}
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-teal-700 underline"
+              >
+                {result.source_info.repository_url}
+              </a>
+            </p>
+          )}
+          {result.source_info.preview && (
+            <details className="rounded-xl border border-navy/10 bg-white p-4">
+              <summary className="cursor-pointer font-semibold text-navy">
+                Review {result.source_info.source_type === 'pdf'
+                  ? 'the extracted PDF text'
+                  : result.source_info.source_type === 'github'
+                    ? 'the retrieved README text'
+                    : 'the analyzed text'}
+              </summary>
+              <pre className="mt-3 max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-warm p-4 text-xs leading-5 text-slatebody">
+                {result.source_info.preview}
+              </pre>
+            </details>
+          )}
 
           {result.experience_summary.length > 0 && (
             <Card className="p-5 shadow-card sm:p-6">

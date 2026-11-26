@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { parseGitHubRepositoryUrl } from './githubRepository'
 
 export const evidenceTypes = [
   'project_url',
@@ -26,6 +27,7 @@ export const evidenceSchema = z.object({
     'A skill can only be linked once.',
   ),
   relationship_note: z.string().trim().max(400, 'Relationship note must be 400 characters or fewer.'),
+  reviewer_consent: z.boolean(),
 }).superRefine((value, context) => {
   if (value.evidence_type === 'text_sample' && !value.description) {
     context.addIssue({
@@ -64,15 +66,11 @@ export const evidenceSchema = z.object({
   }
 
   if (value.evidence_type === 'github_url') {
-    const pathSegments = url.pathname.split('/').filter(Boolean)
-    if (
-      url.hostname.toLowerCase() !== 'github.com' ||
-      pathSegments.length < 2
-    ) {
+    if (!parseGitHubRepositoryUrl(value.source_url)) {
       context.addIssue({
         code: 'custom',
         path: ['source_url'],
-        message: 'Enter a GitHub repository URL, such as https://github.com/owner/repository.',
+        message: 'Enter the public repository URL only, such as https://github.com/owner/repository.',
       })
     }
   }
@@ -91,6 +89,7 @@ export type EvidenceRecord = {
   mime_type: string | null
   processing_status: 'pending' | 'processed' | 'failed'
   visibility: 'private' | 'public'
+  reviewer_consent: boolean
   created_at: string
   updated_at: string
 }
@@ -107,4 +106,5 @@ export const emptyEvidence = (): EvidenceInput => ({
   source_url: '',
   skill_ids: [],
   relationship_note: '',
+  reviewer_consent: false,
 })

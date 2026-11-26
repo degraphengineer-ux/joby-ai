@@ -13,9 +13,7 @@ Confirm the project reference before linking or pushing. `db push` applies pendi
 
 Use `--remote` explicitly: the CLI otherwise targets the local database by default, which requires a local Postgres server on port `54322`. `npx supabase start` is a separate local-development workflow and requires Docker Desktop to be running.
 
-The standard migration set in `supabase/migrations/` contains the MVP schema, security, seed, private storage, passport sharing, profile trigger and hardening. `review_records` is added by the Skills Passport migration; `ai_processing_logs` remains in `supabase/optional-migrations/` and is not applied by `supabase db push`.
-
-The optional P1 SQL is a reference migration only. Review and add it to the standard migration path only when the corresponding features are scheduled.
+The standard migration set in `supabase/migrations/` contains the MVP schema, security, seed, private storage, passport sharing, profile trigger, hardening and the scheduled Phase 11 P1 integrations. `review_records` is created by the Skills Passport migration; the Phase 11 migration adds reviewer consent/authorization, audit material, the AI operational log table, aggregate impact RPC and assessment definitions.
 
 ## Authentication migration
 
@@ -37,11 +35,11 @@ Evidence file uploads use an authenticated Edge Function that checks the authent
 npx supabase functions deploy evidence-upload --remote=<project-ref> --use-api
 ```
 
-Until both the migration and function are deployed, URL and text evidence work, but private file uploads are unavailable. Evidence links and uploaded files remain private in this phase; there is no public file-sharing flow.
+Until both the storage migration and upload function are deployed, URL and text evidence work, but private file uploads are unavailable. Files remain in the private bucket. Reviewer access is separate, opt-in and limited to short-lived signed links; there is no public file-sharing flow.
 
 ## AI skill extraction
 
-The `extract-skills` Edge Function accepts either user-provided text or the description of an evidence record owned by the authenticated user. It does not fetch submitted URLs, read private files, or store submitted analysis text in the Joby AI database. AI responses are schema-validated and source snippets are checked against the supplied text; suggestions are never saved automatically.
+The `extract-skills` Edge Function accepts user-provided text, an owned evidence description, an owned private PDF, or an owned GitHub evidence record. PDF extraction checks the private storage path, MIME type, size and PDF signature, limits parsing to 25 pages and 12,000 extracted characters, disables evaluation support and font rendering, and does not save extracted content. Scanned PDFs are not OCR’d. GitHub analysis validates a public repository root and fetches only the GitHub API repository metadata and root README; it does not fetch or execute code. Unavailable or insufficient sources are reported without generated suggestions. The UI requires explicit consent before PDF or GitHub source text is sent to Gemini. AI responses are schema-validated and source snippets are checked against the supplied text; suggestions are never saved automatically.
 
 The function uses the server-side `GEMINI_API_KEY` secret and defaults to `gemini-3.5-flash-lite`. `GEMINI_MODEL` is an optional server-side override; changing a Supabase Edge Function secret takes effect without redeploying. Configure the key privately through the Supabase Dashboard's Edge Function secrets or a secure local secret-management workflow (never in a `VITE_` variable, source file, or chat), apply the rate-limit migration, then deploy:
 
@@ -50,7 +48,31 @@ npx supabase db push --remote
 npx supabase functions deploy extract-skills --remote=<project-ref> --use-api
 ```
 
-The rate-limit RPC permits five requests per authenticated user per UTC hour. Requests contain at most 12,000 characters, and the function times out Gemini calls after 25 seconds. The frontend lets users edit, accept, or reject each suggestion; accepted skills remain AI suggestions and are not represented as verified. Live extraction requires an authorized deployment and a Gemini key configured privately in Supabase.
+The rate-limit RPC permits five requests per authenticated user per UTC hour. Requests contain at most 12,000 characters, and the function times out Gemini calls after 25 seconds. The frontend lets users review source text, edit, accept, or reject each suggestion; accepted skills remain AI suggestions and are not represented as verified. Minimal operational logs record the user, operation, status, model and a bounded error code only. Prompts, source text, AI output, tokens and credentials are not logged.
+
+## Reviewer access
+
+The `/reviewer` screen calls the JWT-protected `review-evidence` Edge Function. Each evidence item is excluded unless its owner enabled reviewer consent. Reviewer authorization is stored in `public.authorized_reviewers`, which has RLS enabled and no client grants. Only an administrator using a trusted database channel should grant access:
+
+```sql
+insert into public.authorized_reviewers (user_id)
+values ('<existing-auth-user-uuid>')
+on conflict (user_id) do update set is_active = true;
+```
+
+Revoke access by setting `is_active = false`. Never let a user grant their own reviewer access. The function checks the authenticated user against this allowlist, signs consented private files for 60 seconds, and records the authenticated reviewer UUID, evidence ID, explicit decision, selected reviewed materials, optional notes and timestamp. The review insert re-checks authorization and evidence consent transactionally. A reviewer cannot write review records directly as an ordinary authenticated user; duplicate reviews by the same reviewer are rejected.
+
+Deploy `review-evidence` with JWT verification enabled after applying the Phase 11 migration. Candidates can withdraw consent by editing the evidence item; earlier review records remain for accountability, and an already issued private-file link can remain usable for up to 60 seconds.
+
+## Impact dashboard and assessment categories
+
+`/impact` calls `get_impact_metrics()`, which returns only aggregate counts for current profile, skill, evidence, attempt and public-sharing rows. No user identifiers are returned. “AI-suggested skills saved” counts skills with `source = 'ai_suggestion'`; this does not count rejected or edited suggestions. Job placements, interviews and other downstream outcomes are not measured.
+
+Phase 11 seeds fixed-rubric `data_analysis` and `customer_support` categories. They use the existing server-validated scoring workflow; scores are advisory and not qualifications.
+
+The private `/passport` page can export the current preview to PDF in the browser. The generated document includes private profile/evidence summaries and assessment feedback shown on that preview, but omits storage paths, uploaded file contents, reviewer notes and account identifiers. The candidate must treat the exported PDF as private.
+
+Run `supabase/tests/phase_11_integrations_test.sql` in a dedicated test project after applying all migrations. It checks category seeds, aggregate correctness, reviewer privileges, RLS and the non-content AI log schema. Frontend and parsing tests run with `npm test`; never run SQL integration checks against production data.
 
 ## Skills Passport and public sharing
 

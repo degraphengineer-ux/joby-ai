@@ -1,4 +1,4 @@
-import { AlertTriangle, Copy, ExternalLink, Eye, EyeOff, FileText, LoaderCircle } from 'lucide-react'
+import { AlertTriangle, Copy, Download, ExternalLink, Eye, EyeOff, FileText, LoaderCircle } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'
@@ -19,6 +19,7 @@ import {
   type PrivatePassport,
 } from './passportService'
 import { PassportStatusExplainer } from './PassportStatusExplainer'
+import { buildPassportPdf } from './passportPdf'
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat(undefined, {
@@ -48,6 +49,29 @@ export function PassportPage() {
   const [visibilityBusyId, setVisibilityBusyId] = useState<string | null>(null)
   const [copyError, setCopyError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExportPdf = async () => {
+    if (!passport) return
+    setPageError(null)
+    setSuccess(null)
+    setIsExporting(true)
+    try {
+      const bytes = await buildPassportPdf(passport)
+      const file = new Blob([bytes.slice().buffer], { type: 'application/pdf' })
+      const url = URL.createObjectURL(file)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'joby-skills-passport.pdf'
+      link.click()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+      setSuccess('Your Skills Passport PDF was generated in this browser. Keep the downloaded file private.')
+    } catch {
+      setPageError('The Skills Passport PDF could not be generated. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const loadPassport = useCallback(async () => {
     if (!user) return
@@ -182,6 +206,14 @@ export function PassportPage() {
       <PageHeading
         title="Your Skills Passport"
         description="Preview the information you can choose to share. Your private files and assessment submissions are never included."
+        action={
+          <Button variant="secondary" onClick={handleExportPdf} disabled={isExporting}>
+            {isExporting
+              ? <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />
+              : <Download size={17} aria-hidden="true" />}
+            {isExporting ? 'Generating PDF...' : 'Download PDF'}
+          </Button>
+        }
       />
 
       {pageError && <div className="mb-5"><ErrorState>{pageError}</ErrorState></div>}

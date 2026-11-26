@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { z } from 'https://esm.sh/zod@4.6.7'
+import type { EdgeFunctionDatabase } from '../_shared/database.ts'
 import {
   parseTrustedRubric,
   validateModelFeedback,
@@ -64,6 +65,7 @@ const attemptRowSchema = z.object({
 
 type AssessmentRow = z.infer<typeof assessmentRowSchema>
 type AttemptRow = z.infer<typeof attemptRowSchema>
+type SupabaseClient = ReturnType<typeof createClient<EdgeFunctionDatabase>>
 
 type RequestFeedbackResult =
   | {
@@ -303,7 +305,7 @@ async function requestValidatedFeedback(
 }
 
 async function markAttemptFailed(
-  serviceClient: ReturnType<typeof createClient>,
+  serviceClient: SupabaseClient,
   userId: string,
   attemptId: string,
 ): Promise<void> {
@@ -320,8 +322,44 @@ async function markAttemptFailed(
   if (error) throw new Error('The assessment attempt could not be made retryable.')
 }
 
+async function startAiLog(
+  client: SupabaseClient,
+  userId: string,
+  model: string,
+): Promise<string | null> {
+  const { data, error } = await client
+    .from('ai_processing_logs')
+    .insert({
+      user_id: userId,
+      operation_type: 'assessment_feedback',
+      status: 'started',
+      model_name: model,
+    })
+    .select('id')
+    .single()
+  if (error || typeof data?.id !== 'string') return null
+  return data.id
+}
+
+async function finishAiLog(
+  client: SupabaseClient,
+  logId: string,
+  userId: string,
+  status: 'succeeded' | 'failed',
+  errorCode: string | null,
+): Promise<boolean> {
+  const { data, error } = await client
+    .from('ai_processing_logs')
+    .update({ status, error_code: errorCode })
+    .eq('id', logId)
+    .eq('user_id', userId)
+    .select('id')
+    .maybeSingle()
+  return !error && Boolean(data)
+}
+
 async function claimAttempt(
-  serviceClient: ReturnType<typeof createClient>,
+  serviceClient: SupabaseClient,
   attempt: AttemptRow,
 ): Promise<boolean> {
   const update = serviceClient
@@ -518,6 +556,16 @@ Deno.serve(async (request: Request) => {
     )
   }
 
+  const logId = await startAiLog(serviceClient, userData.user.id, model)
+  if (!logId) {
+    try {
+      await markAttemptFailed(serviceClient, userData.user.id, ownedAttempt.id)
+    } catch {
+      return respond(503, { error: 'The assessment request could not be recorded and the attempt could not be reset. Your submission is preserved.' })
+    }
+    return respond(503, { error: 'The assessment request could not be recorded safely. Your submission is preserved; please retry later.' })
+  }
+
   const result = await requestValidatedFeedback(
     trustedAssessment,
     rubric,
@@ -531,6 +579,20 @@ Deno.serve(async (request: Request) => {
       await markAttemptFailed(serviceClient, userData.user.id, ownedAttempt.id)
     } catch {
       return respond(503, { error: 'Assessment failed and the attempt could not be reset. Your submission is preserved; retry later.' })
+    }
+    const logged = await finishAiLog(
+      serviceClient,
+      logId,
+      userData.user.id,
+      'failed',
+      result.status === 504
+        ? 'provider_timeout'
+        : result.status === 502
+          ? 'provider_rejected'
+          : 'provider_unavailable',
+    )
+    if (!logged) {
+      return respond(503, { error: 'Assessment failed and its operational record could not be updated. Your submission is preserved; retry later.' })
     }
     return respond(result.status, { error: result.message })
   }
@@ -565,7 +627,28 @@ Deno.serve(async (request: Request) => {
     } catch {
       return respond(503, { error: 'Feedback could not be saved and the attempt could not be reset. Your submission is preserved; retry later.' })
     }
+    const logged = await finishAiLog(
+      serviceClient,
+      logId,
+      userData.user.id,
+      'failed',
+      'assessment_result_save_failed',
+    )
+    if (!logged) {
+      return respond(503, { error: 'Feedback could not be saved and its operational record could not be updated. Your submission is preserved; retry later.' })
+    }
     return respond(503, { error: 'Assessment feedback could not be saved. Your submission is preserved; please retry.' })
+  }
+
+  const logged = await finishAiLog(
+    serviceClient,
+    logId,
+    userData.user.id,
+    'succeeded',
+    null,
+  )
+  if (!logged) {
+    return respond(503, { error: 'Assessment feedback was saved, but its operational record could not be updated. Refresh the results page.' })
   }
 
   return respond(200, {

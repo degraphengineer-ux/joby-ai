@@ -12,10 +12,14 @@ Joby AI is an evidence-first skills profile and practical assessment platform. I
 - Candidate profile and self-reported skills management.
 - Evidence records for text samples, project URLs, GitHub URLs and supported file uploads.
 - Private evidence storage with authenticated upload validation.
-- Gemini-powered skill suggestions from user-provided text or an evidence description. Candidates accept, edit or reject each suggestion; submitted URLs and private files are not fetched for extraction.
-- A fixed Web Development Fundamentals assessment with server-validated, rubric-based AI feedback. The server calculates the score; a URL alone is not assessed.
+- Gemini-powered skill suggestions from user-provided text, evidence descriptions, bounded text extracted from private PDFs, or a public GitHub root README. Candidates accept, edit or reject each suggestion; PDFs remain private, arbitrary URLs are not fetched, and repository code is never fetched or executed.
+- Web Development Fundamentals, Data Analysis, and Customer Support assessments with fixed, server-validated rubrics. The server calculates scores; URLs alone are not assessed.
 - Private Skills Passport preview and revocable public sharing through an allowlisted database function.
-- Responsive landing, dashboard, evidence, assessment, passport and settings screens.
+- Browser-generated PDF export of the Skills Passport.
+- Reviewer queue gated by explicit candidate consent and an administrator-managed reviewer allowlist. Decisions identify the reviewer, reviewed materials, notes and timestamp.
+- Aggregated product-activity dashboard with real record counts and no personal identifiers or employment-outcome claims.
+- Minimal AI operational logs containing status and model metadata only, never prompts, documents or model responses.
+- Responsive landing, dashboard, evidence, assessment, passport, reviewer and impact screens.
 
 ## Technology and architecture
 
@@ -29,7 +33,7 @@ The browser uses the Supabase publishable/anon key with RLS. Sensitive AI and se
 
 ## Requirements
 
-- Node.js 20 or newer and npm.
+- Node.js 20.16 or newer and npm.
 - A Supabase project for authenticated and data-backed features.
 - A Gemini API key configured as a Supabase Edge Function secret for AI extraction and assessment.
 - Docker Desktop only if running the local Supabase stack.
@@ -62,10 +66,11 @@ Quality checks:
 
 ```powershell
 npm run lint
+npm test
 npm run build
 ```
 
-There is currently no unit or integration test script in `package.json`. SQL security test templates are in `supabase/tests/` and require disposable test accounts in a dedicated non-production project.
+Focused feature tests run with `npm test`. SQL integration checks are in `supabase/tests/`; run them only against a dedicated test database after applying migrations. Live reviewer and RLS checks require real, explicitly authorized test accounts.
 
 ## Environment variables and secrets
 
@@ -102,10 +107,16 @@ npx supabase db push --remote
 Set `GEMINI_API_KEY` as a Supabase Function secret. Deploy the functions without disabling JWT verification:
 
 ```powershell
-npx supabase functions deploy evidence-upload extract-skills assess-submission --remote=<project-ref> --use-api
+npx supabase functions deploy evidence-upload extract-skills assess-submission review-evidence --remote=<project-ref> --use-api
 ```
 
 The `--use-api` option avoids a local Docker requirement. Do not use `--no-verify-jwt` or `--prune` for routine deployment.
+
+The Phase 11 migration adds reviewer consent, server-only reviewer authorization, aggregate impact metrics, review-material audit fields, minimal AI logs and the two additional assessment categories. Apply the migration before deploying the updated `extract-skills`, `assess-submission` and `review-evidence` functions. To authorize a reviewer, an administrator must insert that existing Auth user’s UUID into `public.authorized_reviewers` using the Supabase SQL editor or another trusted administrative channel. The reviewer dashboard is not accessible based on sign-in alone.
+
+PDF extraction is limited to 10 MB and 25 pages, returns at most 12,000 characters, does not OCR scanned images, and does not save extracted text to the evidence record or operational logs. GitHub analysis retrieves only public repository metadata and the root README through `api.github.com`; it never fetches or executes submitted code and does not verify authorship. PDF text and GitHub README text are sent to Gemini only after the user confirms consent in the UI.
+
+The Passport PDF is generated in the browser from the private preview. It includes profile/evidence descriptions and assessment summaries, but never includes uploaded file contents, storage paths, account identifiers or reviewer notes. Treat the downloaded PDF as private.
 
 For local Supabase development, `npx supabase start` requires Docker Desktop. Local Auth URLs in `supabase/config.toml` are configured for Vite on port 5173. Production Auth Site URL and allowed redirect URLs must be set in the Supabase Dashboard to the actual Vercel domain.
 
@@ -130,10 +141,11 @@ No demo account or production URL is currently included in this repository. Do n
 - Private evidence is stored in a private bucket. Public passports contain only allowlisted profile information and explicitly public evidence summaries.
 - User records are protected with RLS. Edge Functions verify JWTs and ownership, and Gemini secrets remain server-side.
 - AI output can be inaccurate. Skill extraction suggestions require candidate approval, and assessment feedback is advisory—not official certification, licensing or human review.
-- Assessment feedback is based on submitted text. Project URLs are not fetched, and a URL does not establish authorship or quality.
-- File uploads are limited and signature-checked; uploaded documents are not parsed for AI extraction in this MVP.
-- There are no employer accounts, candidate search, self-service account deletion, or in-app human review workflow.
-- MVP impact event tracking is not implemented. Do not report unmeasured outcomes such as employment gained.
+- Assessment feedback is based on submitted text. Project URLs are not fetched, and a URL does not establish authorship or quality. GitHub analysis is limited to a public README and metadata.
+- File uploads are limited and signature-checked. PDF text extraction is bounded, non-OCR, and runs on the server; files remain in private storage.
+- Reviewer access is opt-in per evidence item and must be granted by an administrator. A reviewer’s decision is an accountable human review, not independent verification of authorship.
+- Impact numbers are current product-record aggregates only. The app does not measure employment, interviews, or other downstream outcomes.
+- There are no employer accounts, candidate search or self-service account deletion.
 - A deployment URL, GitHub remote, demo account and live end-to-end verification are still required before hackathon submission.
 
 ## Hackathon submission

@@ -14,6 +14,12 @@ export const extractionResponseSchema = z.object({
   skills: z.array(skillSuggestionSchema).max(12),
   experience_summary: z.array(z.string().trim().min(1).max(300)).max(8),
   limitations: z.array(z.string().trim().min(1).max(300)).max(8),
+  source_info: z.object({
+    source_type: z.enum(['text', 'evidence_description', 'pdf', 'github']),
+    availability: z.enum(['available', 'insufficient', 'unavailable']),
+    preview: z.string().max(MAX_EXTRACTION_INPUT_CHARS).nullable(),
+    repository_url: z.string().url().nullable(),
+  }).strict(),
 }).strict()
 
 export type SkillSuggestion = z.infer<typeof skillSuggestionSchema>
@@ -28,6 +34,7 @@ export const extractionRequestSchema = z.discriminatedUnion('source', [
   z.object({
     source: z.literal('evidence'),
     evidence_id: z.string().uuid(),
+    consent_to_ai_processing: z.literal(true),
   }).strict(),
 ])
 

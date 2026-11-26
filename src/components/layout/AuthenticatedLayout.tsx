@@ -16,6 +16,8 @@ const navigation: { to: string; label: string; icon?: LucideIcon }[] = [
   { to: '/evidence', label: 'Evidence' },
   { to: '/assessments', label: 'Assessments' },
   { to: '/passport', label: 'Passport' },
+  { to: '/impact', label: 'Impact' },
+  { to: '/reviewer', label: 'Review queue' },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 

@@ -275,6 +275,21 @@ export function EvidenceForm({
           )}
         </fieldset>
 
+        <label className="flex items-start gap-3 rounded-xl border border-navy/10 bg-warm p-4 text-sm leading-6 text-slatebody">
+          <input
+            type="checkbox"
+            checked={draft.reviewer_consent}
+            onChange={(event) => setDraft((current) => ({
+              ...current,
+              reviewer_consent: event.target.checked,
+            }))}
+            className="mt-1 h-4 w-4 shrink-0 rounded border-navy/30 text-teal focus:ring-teal"
+          />
+          <span>
+            I consent to authorized Joby AI reviewers accessing this evidence and recording a review decision. This is optional and can be withdrawn by editing this item; prior review records remain for accountability. Files remain private. A reviewer’s signed file link may remain usable for up to 60 seconds after consent is withdrawn.
+          </span>
+        </label>
+
         {isSaving && (
           <div className="space-y-2" role="status" aria-live="polite">
             <p className="text-sm font-semibold text-navy">
