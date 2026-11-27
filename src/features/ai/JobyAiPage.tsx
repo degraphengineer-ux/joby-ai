@@ -178,7 +178,7 @@ export function JobyAiPage() {
           <section aria-labelledby="joby-ai-heading" className="flex flex-1 flex-col items-center justify-start px-2 pb-12 pt-16 sm:px-6 sm:pb-20">
             <section className="flex w-full max-w-4xl flex-col gap-10">
               <h1 id="joby-ai-heading" className="text-center text-3xl font-medium tracking-tight text-navy sm:text-4xl">
-                What will you build next?
+                Hello! I&apos;m Joby AI.
               </h1>
               {renderComposer(true)}
               <nav className="space-y-3 pt-2 sm:space-y-4" aria-label="Suggested actions">
