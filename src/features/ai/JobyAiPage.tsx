@@ -1,157 +1,264 @@
-import { LoaderCircle, Send, Sparkles, Trash2 } from '../../components/ui/icons'
-import { useRef, useState, type FormEvent } from 'react'
+import { Attachment, BarChart, CornerDownLeft, LoaderCircle, LayoutLeftFilled, Plus, RefreshFilled, Sketching } from '../../components/ui/icons'
+import { lazy, Suspense, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { Link, useOutletContext } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
-import { Card } from '../../components/ui/Card'
 import { ErrorState } from '../../components/ui/Feedback'
 import { PageContainer } from '../../components/layout/PageContainer'
-import { PageHeading } from '../../components/layout/PageHeading'
 import { useAuth } from '../auth/useAuth'
+import { readAiPermissions } from './aiPermissions'
 import { askJobyAi, type AiChatMessage } from './jobyAiService'
+import { normalizePublicAnalysisUrl } from './publicUrl'
+
+const MarkdownMessage = lazy(() => import('./MarkdownMessage').then(({ MarkdownMessage: component }) => ({ default: component })))
 
 const suggestions = [
-  'Suggest a practical project based on my skills',
-  'Help me build a learning roadmap',
-  'Quiz me on a technology I want to improve',
+  {
+    label: 'Analyze my project',
+    prompt: 'Review my project and suggest the most useful improvements to make next.',
+    icon: BarChart,
+  },
+  {
+    label: 'Write or edit',
+    prompt: 'Help me write or edit something for my career or project.',
+    icon: Sketching,
+  },
+  {
+    label: 'Start a real assessment',
+    to: '/assessments',
+    icon: RefreshFilled,
+  },
 ]
+
+type AuthenticatedOutletContext = {
+  mobileMenuOpen?: boolean
+  openMobileMenu?: (trigger: HTMLButtonElement) => void
+}
 
 export function JobyAiPage() {
   const { user } = useAuth()
+  const outletContext = useOutletContext<AuthenticatedOutletContext>()
+  const permissions = readAiPermissions(user?.user_metadata)
   const [messages, setMessages] = useState<AiChatMessage[]>([])
   const [draft, setDraft] = useState('')
-  const [includeProfileContext, setIncludeProfileContext] = useState(false)
+  const [urlDraft, setUrlDraft] = useState('')
+  const [isUrlInputOpen, setIsUrlInputOpen] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const transcriptRef = useRef<HTMLDivElement>(null)
+  const urlInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (isUrlInputOpen) urlInputRef.current?.focus()
+  }, [isUrlInputOpen])
 
   const sendMessage = async (event?: FormEvent<HTMLFormElement>, suggestedPrompt?: string) => {
     event?.preventDefault()
-    const text = (suggestedPrompt ?? draft).trim()
-    if (!user || !text || isSending) return
+    const url = urlDraft.trim() ? normalizePublicAnalysisUrl(urlDraft) : null
+    if (urlDraft.trim() && !url) {
+      setError('Enter a public HTTPS page URL without credentials or a custom port.')
+      return
+    }
+    if (url && !permissions.publicUrlAnalysis) {
+      setError('Enable public page analysis in Settings → Privacy and permissions.')
+      return
+    }
 
-    const updatedMessages = [...messages, { role: 'user' as const, content: text }]
+    const text = (suggestedPrompt ?? draft).trim() || (url
+      ? 'Analyze this public page. Summarize its purpose, key content, strengths, and practical improvement opportunities.'
+      : '')
+    if (!user || (!text && !url) || isSending) return
+
+    const userMessage = url ? `${text}\n\nPage to analyze: ${url}` : text
+    const updatedMessages = [...messages, { role: 'user' as const, content: userMessage }]
     setMessages(updatedMessages)
     setDraft('')
+    setUrlDraft('')
+    setIsUrlInputOpen(false)
     setError(null)
     setIsSending(true)
     try {
-      const answer = await askJobyAi(updatedMessages, includeProfileContext)
+      const answer = await askJobyAi(updatedMessages, url ?? undefined, permissions.profileContext)
       setMessages((current) => [...current, { role: 'assistant', content: answer }])
       requestAnimationFrame(() => transcriptRef.current?.scrollTo({ top: transcriptRef.current.scrollHeight, behavior: 'smooth' }))
     } catch (cause) {
       setMessages((current) => current.slice(0, -1))
       setDraft(text)
+      setUrlDraft(url ?? '')
       setError(cause instanceof Error ? cause.message : 'Joby AI could not respond. Please try again.')
     } finally {
       setIsSending(false)
     }
   }
 
+  const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+      event.preventDefault()
+      void sendMessage()
+    }
+  }
+
+  const renderComposer = (compact: boolean) => (
+    <form
+      className={`w-full ${compact ? 'max-w-5xl' : ''}`}
+      onSubmit={(event) => void sendMessage(event)}
+    >
+      <label htmlFor="joby-ai-message" className="sr-only">Message Joby AI</label>
+      <div className={`flex items-center gap-2 rounded-full border border-navy/10 bg-white px-3 py-2 shadow-[0_8px_32px_rgba(27,39,58,0.08)] transition focus-within:border-coral/50 focus-within:ring-4 focus-within:ring-coral/10 sm:px-5 ${compact ? 'min-h-[3.75rem]' : 'min-h-14'}`}>
+        <button
+          type="button"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slatebody transition hover:bg-warm hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
+          aria-label={isUrlInputOpen ? 'Close public page URL input' : 'Add a public page to analyze'}
+          aria-expanded={isUrlInputOpen}
+          onClick={() => setIsUrlInputOpen((open) => !open)}
+        >
+          <Attachment size={23} aria-hidden="true" />
+        </button>
+        <textarea
+          id="joby-ai-message"
+          rows={1}
+          maxLength={4000}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={handleComposerKeyDown}
+          placeholder="Ask Joby AI"
+          className="joby-ai-composer__textarea max-h-32 min-h-10 flex-1 resize-none border-0 bg-transparent py-2 text-base text-navy outline-none focus:border-0 focus:outline-none focus:ring-0 placeholder:text-slatebody/70"
+          aria-describedby="joby-ai-privacy"
+          disabled={isSending}
+        />
+        <button
+          type="submit"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-coral text-navy transition-colors hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isSending || (!draft.trim() && !urlDraft.trim())}
+          aria-label="Send message"
+        >
+          {isSending ? <LoaderCircle size={20} className="animate-spin" aria-hidden="true" /> : <CornerDownLeft size={23} aria-hidden="true" />}
+        </button>
+      </div>
+
+      {isUrlInputOpen && (
+        <div className="mt-3 text-left">
+          <label htmlFor="joby-ai-url" className="sr-only">Public page URL</label>
+          <input
+            ref={urlInputRef}
+            id="joby-ai-url"
+            type="url"
+            maxLength={2048}
+            value={urlDraft}
+            onChange={(event) => setUrlDraft(event.target.value)}
+            placeholder="https://example.com/project"
+            disabled={isSending || !permissions.publicUrlAnalysis}
+            className="joby-ai-url-input min-h-10 w-full rounded-full border-0 bg-white px-4 py-2 text-sm text-navy shadow-[0_8px_32px_rgba(27,39,58,0.08)] outline-none placeholder:text-slatebody/60 focus:border-0 focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:bg-warm"
+          />
+        </div>
+      )}
+      {error && <div className="mt-3"><ErrorState>{error}</ErrorState></div>}
+      <p id="joby-ai-privacy" className="sr-only">
+        Your chat clears when you leave. Don’t share passwords or secrets.
+      </p>
+    </form>
+  )
+
   return (
-    <PageContainer className="py-8 sm:py-12">
-      <PageHeading
-        title="Joby AI"
-        description="A career and skill-development advisor for project ideas, learning plans, quizzes, and feedback on text you choose to share."
-      />
-      <Card className="mx-auto flex min-h-[min(70vh,48rem)] max-w-4xl flex-col overflow-hidden shadow-card">
-        <div className="flex items-center justify-between gap-4 border-b border-navy/10 px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-coral/10 text-coral">
-              <Sparkles size={20} aria-hidden="true" />
-            </span>
-            <div>
-              <h2 className="font-bold text-navy">Personal AI assistant</h2>
-              <p className="text-xs text-slatebody">Replies are AI-generated and may need verification.</p>
-            </div>
-          </div>
-          <Button
+    <PageContainer className="py-0">
+      <div className="relative mx-auto flex min-h-[calc(100svh-5rem)] max-w-6xl flex-col">
+        <div className="absolute right-0 top-3 z-10">
+          <button
             type="button"
-            variant="ghost"
-            className="shrink-0"
-            onClick={() => {
-              setMessages([])
-              setError(null)
-            }}
-            disabled={isSending || messages.length === 0}
-            aria-label="Clear conversation"
+            className="app-mobile-menu"
+            aria-label={outletContext?.mobileMenuOpen ? 'Navigation menu open' : 'Open navigation menu'}
+            aria-expanded={outletContext?.mobileMenuOpen ?? false}
+            aria-controls="app-sidebar"
+            onClick={(event) => outletContext?.openMobileMenu?.(event.currentTarget)}
           >
-            <Trash2 size={17} aria-hidden="true" />
-            <span className="hidden sm:inline">Clear</span>
-          </Button>
+            <LayoutLeftFilled size={20} aria-hidden="true" />
+          </button>
         </div>
 
-        <div ref={transcriptRef} className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6" aria-live="polite">
-          {messages.length === 0 ? (
-            <div className="mx-auto max-w-xl py-8 text-center">
-              <h3 className="text-lg font-bold text-navy">What would you like to work on?</h3>
-              <p className="mt-2 text-sm leading-6 text-slatebody">
-                Ask for project ideas, a step-by-step roadmap, targeted practice questions, or feedback on a project description or code snippet.
-              </p>
-              <div className="mt-6 grid gap-2 text-left sm:grid-cols-3">
-                {suggestions.map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    className="rounded-xl border border-navy/10 bg-white p-3 text-sm font-medium leading-5 text-navy transition hover:border-coral/50 hover:bg-warm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-                    onClick={() => void sendMessage(undefined, suggestion)}
-                    disabled={isSending}
-                  >
-                    {suggestion}
-                  </button>
+        {messages.length === 0 ? (
+          <section aria-labelledby="joby-ai-heading" className="flex flex-1 flex-col items-center justify-start px-2 pb-12 pt-16 sm:px-6 sm:pb-20">
+            <section className="flex w-full max-w-4xl flex-col gap-10">
+              <h1 id="joby-ai-heading" className="text-center text-3xl font-medium tracking-tight text-navy sm:text-4xl">
+                What will you build next?
+              </h1>
+              {renderComposer(true)}
+              <nav className="space-y-3 pt-2 sm:space-y-4" aria-label="Suggested actions">
+                {suggestions.map(({ label, prompt, icon: Icon, to }) => (
+                  to ? (
+                    <Link
+                      key={label}
+                      to={to}
+                      className="flex min-h-8 w-full items-center gap-4 rounded-md px-4 py-1 text-left text-base font-medium text-slatebody transition hover:bg-white/70 hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal sm:px-6"
+                    >
+                      <Icon size={24} className="shrink-0 text-slatebody" aria-hidden="true" />
+                      {label}
+                    </Link>
+                  ) : (
+                    <button
+                      key={label}
+                      type="button"
+                      className="flex min-h-8 w-full items-center gap-4 rounded-md px-4 py-1 text-left text-base font-medium text-slatebody transition hover:bg-white/70 hover:text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral disabled:cursor-not-allowed disabled:opacity-60 sm:px-6"
+                      onClick={() => void sendMessage(undefined, prompt)}
+                      disabled={isSending}
+                    >
+                      <Icon size={24} className="shrink-0 text-slatebody" aria-hidden="true" />
+                      {label}
+                    </button>
+                  )
                 ))}
+              </nav>
+            </section>
+          </section>
+        ) : (
+          <section aria-label="Joby AI conversation" className="flex min-h-0 flex-1 flex-col">
+            <div className="flex items-center justify-end pt-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="min-h-11 rounded-xl bg-transparent px-5 text-base text-navy hover:bg-stone/40 focus-visible:outline-coral"
+                onClick={() => {
+                  setMessages([])
+                  setDraft('')
+                  setUrlDraft('')
+                  setError(null)
+                }}
+                disabled={isSending}
+                aria-label="Clear conversation"
+              >
+                <Plus size={20} aria-hidden="true" />
+                <span>New chat</span>
+              </Button>
+            </div>
+            <div ref={transcriptRef} className="flex-1 space-y-7 overflow-y-auto px-1 pb-8 pt-8 sm:px-10 sm:pt-12" aria-live="polite">
+              {messages.map((message, index) => (
+                <div key={`${message.role}-${index}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <article className={message.role === 'user'
+                    ? 'max-w-[85%] whitespace-pre-wrap rounded-full bg-coral/20 px-6 py-3 text-base leading-7 text-navy sm:max-w-[70%]'
+                    : 'w-full max-w-5xl break-words py-2 text-base leading-8 text-navy'}>
+                    {message.role === 'assistant'
+                      ? (
+                        <Suspense fallback={<p className="text-sm text-slatebody" role="status">Formatting response…</p>}>
+                          <MarkdownMessage content={message.content} />
+                        </Suspense>
+                      )
+                      : message.content}
+                  </article>
+                </div>
+              ))}
+              {isSending && (
+                <div className="flex items-center gap-2 text-sm text-slatebody" role="status">
+                  <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />
+                  Joby AI is thinking…
+                </div>
+              )}
+            </div>
+            <div className="sticky bottom-0 bg-warm/95 px-1 pb-5 pt-4 backdrop-blur sm:px-8 sm:pb-8">
+              <div className="mx-auto max-w-5xl">
+                {renderComposer(false)}
               </div>
             </div>
-          ) : messages.map((message, index) => (
-            <div key={`${message.role}-${index}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <article className={`max-w-[90%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6 sm:max-w-[80%] ${message.role === 'user' ? 'bg-navy text-white' : 'border border-navy/10 bg-warm text-navy'}`}>
-                <p className="mb-1 text-[0.6875rem] font-bold uppercase tracking-wide opacity-70">
-                  {message.role === 'user' ? 'You' : 'Joby AI'}
-                </p>
-                {message.content}
-              </article>
-            </div>
-          ))}
-          {isSending && (
-            <div className="flex items-center gap-2 text-sm text-slatebody" role="status">
-              <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />
-              Joby AI is thinking…
-            </div>
-          )}
-        </div>
-
-        {error && <div className="px-4 sm:px-6"><ErrorState>{error}</ErrorState></div>}
-        <form className="border-t border-navy/10 bg-white p-4 sm:p-6" onSubmit={(event) => void sendMessage(event)}>
-          <label htmlFor="joby-ai-message" className="sr-only">Message Joby AI</label>
-          <div className="flex items-end gap-2 rounded-2xl border border-navy/15 bg-white p-2 focus-within:border-coral focus-within:ring-4 focus-within:ring-coral/10">
-            <textarea
-              id="joby-ai-message"
-              rows={2}
-              maxLength={4000}
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder="Ask a question or describe what you're building…"
-              className="max-h-40 min-h-12 flex-1 resize-y border-0 bg-transparent px-2 py-2 text-sm text-navy outline-none placeholder:text-slatebody/60"
-              aria-describedby="joby-ai-privacy"
-              disabled={isSending}
-            />
-            <Button type="submit" className="mb-1 h-10 min-h-10 w-10 shrink-0 rounded-xl px-0" disabled={isSending || !draft.trim()} aria-label="Send message">
-              {isSending ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true" /> : <Send size={18} aria-hidden="true" />}
-            </Button>
-          </div>
-          <label className="mt-3 flex cursor-pointer items-start gap-2 text-xs leading-5 text-slatebody">
-            <input
-              type="checkbox"
-              className="mt-1 accent-coral focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-              checked={includeProfileContext}
-              onChange={(event) => setIncludeProfileContext(event.target.checked)}
-              disabled={isSending}
-            />
-            <span>Allow Joby AI to use my profile role and registered skills for this conversation. Your profile context is sent with messages only while enabled; messages aren’t saved by Joby AI.</span>
-          </label>
-          <p id="joby-ai-privacy" className="mt-2 text-[0.6875rem] leading-5 text-slatebody">
-            Don’t include passwords, secrets, or sensitive personal information. Only text is supported; pasted project descriptions and code are sent to the configured AI provider when you send a message. Conversation history stays in this page and clears when you leave it or select Clear.
-          </p>
-        </form>
-      </Card>
+          </section>
+        )}
+      </div>
     </PageContainer>
   )
 }

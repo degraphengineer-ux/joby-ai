@@ -7,6 +7,7 @@ import { Card } from '../../components/ui/Card'
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/Feedback'
 import { SelectField } from '../../components/ui/SelectField'
 import { useAuth } from '../auth/useAuth'
+import { readAiPermissions } from '../ai/aiPermissions'
 import { listSkills } from '../skills/skillsService'
 import type { Skill } from '../skills/skillSchema'
 import {
@@ -30,11 +31,11 @@ type ActiveQuiz = {
 
 export function AIQuizSection() {
   const { user } = useAuth()
+  const canUseSkillContext = readAiPermissions(user?.user_metadata).quizSkillContext
   const [skills, setSkills] = useState<Skill[]>([])
   const [history, setHistory] = useState<AiQuizHistoryItem[]>([])
   const [selectedSkillId, setSelectedSkillId] = useState('')
   const [difficulty, setDifficulty] = useState<QuizDifficulty>('beginner')
-  const [consent, setConsent] = useState(false)
   const [quiz, setQuiz] = useState<ActiveQuiz | null>(null)
   const [answers, setAnswers] = useState<Record<string, 'A' | 'B' | 'C' | 'D'>>({})
   const [result, setResult] = useState<AiQuizResult | null>(null)
@@ -72,7 +73,7 @@ export function AIQuizSection() {
   }, [user])
 
   const generate = async () => {
-    if (!selectedSkillId || !consent) return
+    if (!selectedSkillId || !canUseSkillContext) return
     setError(null)
     setIsGenerating(true)
     try {
@@ -83,7 +84,6 @@ export function AIQuizSection() {
         difficulty: generated.difficulty,
         questions: generated.questions,
       })
-      setConsent(false)
       setAnswers({})
       setResult(null)
       await refreshHistory()
@@ -189,22 +189,17 @@ export function AIQuizSection() {
           <Button
             type="button"
             onClick={() => void generate()}
-            disabled={!consent || isGenerating || Boolean(quiz)}
+            disabled={!canUseSkillContext || isGenerating || Boolean(quiz)}
             className="lg:min-w-44"
           >
             {isGenerating ? <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> : <Sparkles size={17} aria-hidden="true" />}
             {isGenerating ? 'Generating…' : 'Generate quiz'}
           </Button>
-          <label className="flex cursor-pointer items-start gap-2 text-xs leading-5 text-slatebody sm:col-span-2 lg:col-span-3">
-            <input
-              type="checkbox"
-              className="mt-1 accent-coral focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-              checked={consent}
-              onChange={(event) => setConsent(event.target.checked)}
-              disabled={Boolean(quiz) || isGenerating}
-            />
-            <span>Send the selected skill name, category, and self-reported level to the configured AI provider to create this quiz. The level is not verified. Quiz history and answers are stored privately for my account.</span>
-          </label>
+          <p className="text-xs leading-5 text-slatebody sm:col-span-2 lg:col-span-3">
+            {canUseSkillContext
+              ? <>Your selected skill and self-reported level will be sent to the configured AI provider. Manage this permission in <Link to="/settings" className="font-semibold text-teal-700 underline">Privacy and permissions</Link>.</>
+              : <>Enable AI skill-based quizzes in <Link to="/settings" className="font-semibold text-teal-700 underline">Settings → Privacy and permissions</Link> before generating a quiz.</>}
+          </p>
         </div>
       )}
 

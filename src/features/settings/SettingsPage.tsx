@@ -15,6 +15,7 @@ import { useAuth } from '../auth/useAuth'
 import { ProfileDetails } from '../profile/ProfileDetails'
 import { getProfile } from '../profile/profileService'
 import { setPassportSharing } from '../passport/passportService'
+import { readAiPermissions, saveAiPermissions, type AiPermissions } from '../ai/aiPermissions'
 
 const passwordSchema = z.object({
   password: z.string().min(8, 'Use at least 8 characters.'),
@@ -42,7 +43,15 @@ export function SettingsPage() {
   const [isSavingPrivacy, setIsSavingPrivacy] = useState(false)
   const [privacyError, setPrivacyError] = useState<string | null>(null)
   const [privacySuccess, setPrivacySuccess] = useState<string | null>(null)
+  const [aiPermissions, setAiPermissions] = useState<AiPermissions | null>(null)
+  const [savingAiPermission, setSavingAiPermission] = useState<keyof AiPermissions | null>(null)
+  const [aiPermissionError, setAiPermissionError] = useState<string | null>(null)
+  const [aiPermissionSuccess, setAiPermissionSuccess] = useState<string | null>(null)
   const [signOutError, setSignOutError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setAiPermissions(user ? readAiPermissions(user.user_metadata) : null)
+  }, [user])
 
   const loadPrivacy = async () => {
     if (!user) return
@@ -104,6 +113,23 @@ export function SettingsPage() {
     }
   }
 
+  const handleAiPermissionChange = async (permission: keyof AiPermissions, enabled: boolean) => {
+    if (!aiPermissions) return
+    const updatedPermissions = { ...aiPermissions, [permission]: enabled }
+    setSavingAiPermission(permission)
+    setAiPermissionError(null)
+    setAiPermissionSuccess(null)
+    try {
+      await saveAiPermissions(updatedPermissions)
+      setAiPermissions(updatedPermissions)
+      setAiPermissionSuccess('Your AI privacy preferences have been saved.')
+    } catch (cause) {
+      setAiPermissionError(displayDatabaseError(cause))
+    } finally {
+      setSavingAiPermission(null)
+    }
+  }
+
   const handlePasswordSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setPasswordError(null)
@@ -154,7 +180,7 @@ export function SettingsPage() {
     <PageContainer className="max-w-4xl py-8 sm:py-12">
       <PageHeading
         title="Settings"
-        description="Manage your account, password and Skills Passport privacy."
+        description="Manage your account, password, and privacy permissions."
       />
 
       <div className="space-y-6">
@@ -261,10 +287,36 @@ export function SettingsPage() {
               <ShieldCheck size={20} aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
-              <h2 id="privacy-settings-heading" className="text-lg font-bold text-navy">Privacy and sharing</h2>
+              <h2 id="privacy-settings-heading" className="text-lg font-bold text-navy">Privacy and permissions</h2>
               <p className="mt-1 text-sm leading-6 text-slatebody">
-                Public sharing is optional and can be revoked at any time. Uploaded evidence files always remain private.
+                Choose what Joby AI may use. These optional permissions can be changed at any time.
               </p>
+              <div className="mt-4 divide-y divide-navy/10 rounded-lg border border-navy/10">
+                {([
+                  ['profileContext', 'Personalize Joby AI chat', 'Share your profile role, experience, and registered skills with the AI provider when you chat.'],
+                  ['quizSkillContext', 'Generate skill-based AI quizzes', 'Share the selected skill name, category, and self-reported level with the AI provider to create quizzes.'],
+                  ['assessmentSkillContext', 'Personalize assessment feedback', 'Let the assessment evaluator use your registered skills and self-reported levels when reviewing your submission.'],
+                  ['publicUrlAnalysis', 'Analyze public web pages', 'Let Joby AI use the AI provider’s URL context to inspect public HTTPS pages you submit. Private, login-protected, and unsupported pages cannot be analyzed.'],
+                ] as const).map(([permission, title, description]) => (
+                  <div key={permission} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-navy">{title}</p>
+                      <p className="mt-1 text-sm leading-6 text-slatebody">{description}</p>
+                    </div>
+                    <VisibilityToggle
+                      checked={aiPermissions?.[permission] ?? false}
+                      busy={savingAiPermission !== null || aiPermissions === null}
+                      label={title}
+                      onChange={(enabled) => void handleAiPermissionChange(permission, enabled)}
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 text-xs leading-5 text-slatebody">
+                Messages, assessment submissions, and page URLs are sent to the configured AI provider only when you use those features. Retrieved page content is treated as untrusted input.
+              </p>
+              {aiPermissionError && <div className="mt-4"><ErrorState>{aiPermissionError}</ErrorState></div>}
+              {aiPermissionSuccess && <div className="mt-4"><Toast>{aiPermissionSuccess}</Toast></div>}
               {isLoadingPrivacy ? (
                 <div className="mt-4"><LoadingState label="Loading your sharing settings..." /></div>
               ) : privacyError ? (

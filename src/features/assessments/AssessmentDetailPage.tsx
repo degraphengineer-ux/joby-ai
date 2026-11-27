@@ -10,6 +10,7 @@ import { PageContainer } from '../../components/layout/PageContainer'
 import { PageHeading } from '../../components/layout/PageHeading'
 import { displayDatabaseError } from '../../lib/displayErrors'
 import { useAuth } from '../auth/useAuth'
+import { readAiPermissions } from '../ai/aiPermissions'
 import { initialProfileName } from '../profile/profileService'
 import {
   assessmentSubmissionSchema,
@@ -52,7 +53,6 @@ export function AssessmentDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isStarting, setIsStarting] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [includeSkillContext, setIncludeSkillContext] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -114,6 +114,7 @@ export function AssessmentDetailPage() {
 
     setIsSubmitting(true)
     try {
+      const includeSkillContext = readAiPermissions(user.user_metadata).assessmentSkillContext
       await saveAssessmentSubmission(user.id, attempt.id, parsed.data, includeSkillContext)
       navigate(`/assessments/results/${attempt.id}`)
     } catch (cause) {
@@ -255,15 +256,9 @@ export function AssessmentDetailPage() {
                   Submit for AI-assisted feedback
                   {!isSubmitting && <ArrowRight size={17} aria-hidden="true" />}
                 </Button>
-                <label className="flex cursor-pointer items-start gap-2 text-xs leading-5 text-slatebody">
-                  <input
-                    type="checkbox"
-                    className="mt-1 accent-coral focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
-                    checked={includeSkillContext}
-                    onChange={(event) => setIncludeSkillContext(event.target.checked)}
-                  />
-                  <span>Allow the evaluator to use my registered skills and self-reported levels to contextualize feedback. This is optional and saved with this attempt.</span>
-                </label>
+                <p className="text-xs leading-5 text-slatebody">
+                  Registered skill context is included only when enabled in <Link to="/settings" className="font-semibold text-teal-700 underline">Settings → Privacy and permissions</Link>. You can change that permission at any time.
+                </p>
                 <p className="text-xs leading-5 text-slatebody">
                   Your submission is saved before evaluation. Feedback is advisory and is not an official qualification.
                 </p>

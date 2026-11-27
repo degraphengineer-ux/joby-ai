@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabase'
+import { normalizePublicAnalysisUrl } from './publicUrl'
 
 export type AiChatMessage = {
   role: 'user' | 'assistant'
@@ -7,7 +8,8 @@ export type AiChatMessage = {
 
 export async function askJobyAi(
   messages: AiChatMessage[],
-  includeProfileContext: boolean,
+  urlToAnalyze?: string,
+  includeProfileContext = false,
 ): Promise<string> {
   if (!supabase) {
     throw new Error('Joby AI requires a configured Supabase project.')
@@ -15,9 +17,17 @@ export async function askJobyAi(
 
   const recentMessages = messages.slice(-12)
   if (recentMessages[0]?.role === 'assistant') recentMessages.shift()
+  const normalizedUrl = urlToAnalyze ? normalizePublicAnalysisUrl(urlToAnalyze) : null
+  if (urlToAnalyze && !normalizedUrl) {
+    throw new Error('Enter a public HTTPS page URL without credentials or a custom port.')
+  }
 
   const { data, error } = await supabase.functions.invoke('joby-ai', {
-    body: { messages: recentMessages, include_profile_context: includeProfileContext },
+    body: {
+      messages: recentMessages,
+      include_profile_context: includeProfileContext,
+      ...(normalizedUrl ? { url_to_analyze: normalizedUrl } : {}),
+    },
   })
 
   if (error) {

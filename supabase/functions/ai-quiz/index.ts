@@ -346,6 +346,20 @@ Deno.serve(async (request: Request) => {
     return respond(200, { quiz_id: session.id, skill_name: session.skill_name, difficulty: session.difficulty, score, total_questions: results.length, results })
   }
 
+  const permissions = typeof userData.user.user_metadata === 'object' &&
+    userData.user.user_metadata !== null &&
+    'joby_ai_permissions' in userData.user.user_metadata
+    ? userData.user.user_metadata.joby_ai_permissions
+    : null
+  const quizSkillContextAllowed =
+    typeof permissions === 'object' &&
+    permissions !== null &&
+    'quiz_skill_context' in permissions &&
+    permissions.quiz_skill_context === true
+  if (!quizSkillContextAllowed) {
+    return respond(403, { error: 'Enable AI skill-based quizzes in Settings → Privacy and permissions before generating a quiz.' })
+  }
+
   const { data: skill, error: skillError } = await userClient
     .from('skills')
     .select('id,name,category,self_reported_level')

@@ -174,7 +174,7 @@ export function AuthenticatedLayout() {
   }
 
   return (
-    <div className={`app-shell bg-warm${sidebarCollapsed ? ' app-shell--collapsed' : ''}`}>
+    <div className={`app-shell bg-warm${sidebarCollapsed ? ' app-shell--collapsed' : ''}${location.pathname === '/ai' ? ' app-shell--ai' : ''}`}>
       <a
         href="#main-content"
         className="sr-only fixed left-4 top-4 z-[60] rounded-lg bg-white px-4 py-3 font-semibold text-navy shadow-soft focus:not-sr-only focus:outline focus:outline-2 focus:outline-teal"
@@ -326,23 +326,25 @@ export function AuthenticatedLayout() {
         </div>
       </aside>
       <div className="app-main">
-        <header className="app-topbar">
-          <button
-            ref={mobileMenuButtonRef}
-            type="button"
-            className="app-mobile-menu"
-            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            aria-expanded={menuOpen}
-            aria-controls="app-sidebar"
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            {menuOpen ? <X size={20} aria-hidden="true" /> : <MenuAlt size={20} aria-hidden="true" />}
-          </button>
-          <div>
-            <p className="text-xs text-slatebody">Workspace</p>
-            <p className="text-sm font-semibold text-navy">{activePage?.label ?? 'Overview'}</p>
-          </div>
-        </header>
+        {location.pathname !== '/ai' && (
+          <header className="app-topbar">
+            <button
+              ref={mobileMenuButtonRef}
+              type="button"
+              className="app-mobile-menu"
+              aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={menuOpen}
+              aria-controls="app-sidebar"
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              {menuOpen ? <X size={20} aria-hidden="true" /> : <MenuAlt size={20} aria-hidden="true" />}
+            </button>
+            <div>
+              <p className="text-xs text-slatebody">Workspace</p>
+              <p className="text-sm font-semibold text-navy">{activePage?.label ?? 'Overview'}</p>
+            </div>
+          </header>
+        )}
         {signOutError && (
           <PageContainer className="pt-4">
             <div className="rounded-md border border-error/20 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
@@ -351,7 +353,13 @@ export function AuthenticatedLayout() {
           </PageContainer>
         )}
         <main id="main-content" className="app-content" tabIndex={-1}>
-          <Outlet />
+          <Outlet context={{
+            mobileMenuOpen: menuOpen,
+            openMobileMenu: (trigger: HTMLButtonElement) => {
+              mobileMenuButtonRef.current = trigger
+              setMenuOpen(true)
+            },
+          }} />
         </main>
         <footer className="app-footer">
           <p>Joby AI — Your skills deserve to be seen.</p>

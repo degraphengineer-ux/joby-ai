@@ -469,6 +469,17 @@ Deno.serve(async (request: Request) => {
     return respond(503, { error: 'The assessment attempt record is invalid. Please contact support.' })
   }
   const ownedAttempt = parsedAttempt.data
+  const userMetadata = userData.user.user_metadata
+  const aiPermissions = typeof userMetadata === 'object' &&
+    userMetadata !== null &&
+    'joby_ai_permissions' in userMetadata
+    ? userMetadata.joby_ai_permissions
+    : null
+  const assessmentSkillContextAllowed =
+    typeof aiPermissions === 'object' &&
+    aiPermissions !== null &&
+    'assessment_skill_context' in aiPermissions &&
+    aiPermissions.assessment_skill_context === true
 
   if (ownedAttempt.status === 'completed') {
     return respond(200, {
@@ -506,7 +517,7 @@ Deno.serve(async (request: Request) => {
   const trustedAssessment = parsedAssessment.data
 
   let authorizedSkills: { name: string; category: string | null; self_reported_level: string; description: string | null }[] = []
-  if (ownedAttempt.ai_skill_context_consent) {
+  if (ownedAttempt.ai_skill_context_consent && assessmentSkillContextAllowed) {
     const { data: skills, error: skillsError } = await userClient
       .from('skills')
       .select('name,category,self_reported_level,description')
