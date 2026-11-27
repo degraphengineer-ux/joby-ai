@@ -102,39 +102,39 @@ export function AuthPage({ mode }: AuthPageProps) {
 
   return (
     <AuthLayout>
-      <section className="rounded-xl border border-navy/10 bg-white p-6 shadow-card sm:p-8">
-        <p className="text-sm font-bold text-teal-700">
-          {isRegistration ? 'Create account' : 'Welcome back'}
+      <section aria-labelledby="auth-heading">
+        <p className="text-center text-xs font-bold uppercase tracking-[0.18em] text-teal-700">
+          {isRegistration ? 'Your next step starts here' : 'Welcome back'}
         </p>
-        <h1 className="mt-2 text-3xl font-bold text-navy">
-          {isRegistration ? 'Start your Joby AI profile' : 'Sign in to Joby AI'}
+        <h1 id="auth-heading" className="mt-4 text-center text-4xl font-bold tracking-tight text-navy sm:text-5xl">
+          {isRegistration ? 'Create your account.' : 'Good to see you.'}
         </h1>
-        <p className="mt-3 text-sm leading-6 text-slatebody">
+        <p className="mx-auto mt-4 max-w-sm text-center leading-7 text-slatebody">
           {isRegistration
-            ? 'Use an email and password you can access securely.'
-            : 'Continue to your private Joby AI workspace.'}
+            ? 'Start building a clearer picture of the skills you bring.'
+            : 'Pick up where you left off in your Skills Passport.'}
         </p>
 
         {!isSupabaseConfigured && (
-          <div className="mt-5 rounded-lg border border-warning/20 bg-warning/5 px-4 py-3 text-sm text-warning">
+          <div className="mt-7 rounded-xl border border-warning/20 bg-warning/5 px-4 py-3 text-sm text-warning">
             Supabase is not configured for this environment.
           </div>
         )}
 
         {error && (
-          <div className="mt-5 rounded-lg border border-error/20 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
+          <div className="mt-7 rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error" role="alert">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="mt-5 rounded-lg border border-success/20 bg-success/5 px-4 py-3 text-sm text-success" role="status">
+          <div className="mt-7 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-sm text-success" role="status">
             {success}
           </div>
         )}
 
-        <form className="mt-6 space-y-5" onSubmit={handleSubmit} noValidate>
-          <div>
+        <form className="mt-9 space-y-5" onSubmit={handleSubmit} noValidate>
+          <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-semibold text-navy">
               Email
             </label>
@@ -147,7 +147,7 @@ export function AuthPage({ mode }: AuthPageProps) {
               onChange={(event) => setEmail(event.target.value)}
               aria-invalid={Boolean(fieldErrors.email)}
               aria-describedby={fieldErrors.email ? 'email-error' : undefined}
-              className="mt-2 min-h-12 w-full rounded-lg border border-navy/15 px-3.5 text-navy outline-none focus:border-teal focus:ring-4 focus:ring-teal/10"
+              className="min-h-12 w-full rounded-xl border border-stone bg-white px-4 text-navy outline-none transition focus:border-coral focus:ring-4 focus:ring-coral/10"
               placeholder="you@example.com"
             />
             {fieldErrors.email && (
@@ -157,11 +157,11 @@ export function AuthPage({ mode }: AuthPageProps) {
             )}
           </div>
 
-          <div>
+          <div className="space-y-2">
             <label htmlFor="password" className="block text-sm font-semibold text-navy">
               Password
             </label>
-            <div className="relative mt-2">
+            <div className="relative">
               <input
                 id="password"
                 name="password"
@@ -171,12 +171,12 @@ export function AuthPage({ mode }: AuthPageProps) {
                 onChange={(event) => setPassword(event.target.value)}
                 aria-invalid={Boolean(fieldErrors.password)}
                 aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-                className="min-h-12 w-full rounded-lg border border-navy/15 px-3.5 pr-12 text-navy outline-none focus:border-teal focus:ring-4 focus:ring-teal/10"
+                className="min-h-12 w-full rounded-xl border border-stone bg-white px-4 pr-12 text-navy outline-none transition focus:border-coral focus:ring-4 focus:ring-coral/10"
                 placeholder="At least 8 characters"
               />
               <button
                 type="button"
-                className="absolute right-1 top-1 grid h-10 w-10 place-items-center rounded-md text-slatebody hover:bg-navy/5"
+                className="absolute right-1 top-1 grid h-10 w-10 place-items-center rounded-lg text-slatebody hover:bg-warm"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                 aria-pressed={showPassword}
                 onClick={() => setShowPassword((visible) => !visible)}
@@ -191,17 +191,17 @@ export function AuthPage({ mode }: AuthPageProps) {
             )}
           </div>
 
-          <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+          <Button type="submit" size="lg" className="mt-2 min-h-13 w-full rounded-full font-semibold" disabled={isLoading}>
             {isLoading && <LoaderCircle className="animate-spin" size={18} aria-hidden="true" />}
             {isRegistration ? 'Create account' : 'Sign in'}
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slatebody">
+        <p className="mt-7 text-center text-sm text-slatebody">
           {isRegistration ? 'Already have an account?' : 'New to Joby AI?'}{' '}
           <Link
             to={isRegistration ? '/login' : '/signup'}
-            className="font-bold text-teal-700 hover:text-navy"
+            className="font-bold text-teal-700 underline-offset-4 hover:text-navy hover:underline"
           >
             {isRegistration ? 'Sign in' : 'Create account'}
           </Link>
