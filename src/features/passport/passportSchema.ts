@@ -1,5 +1,65 @@
 import { z } from 'zod'
 
+export const credentialTypes = [
+  'degree',
+  'diploma',
+  'license',
+  'certificate',
+  'micro_credential',
+  'workshop',
+  'other',
+] as const
+
+export const credentialInputSchema = z.object({
+  title: z.string().trim().min(1).max(160),
+  credential_type: z.enum(credentialTypes),
+  issuer_name: z.string().trim().min(1).max(160),
+  description: z.string().trim().max(2000),
+  issued_at: z.string().date().or(z.literal('')),
+  expires_at: z.string().date().or(z.literal('')),
+  credential_identifier: z.string().trim().max(160),
+}).superRefine((credential, context) => {
+  if (credential.issued_at && credential.expires_at && credential.expires_at <= credential.issued_at) {
+    context.addIssue({ code: 'custom', path: ['expires_at'], message: 'Expiry date must be after the issue date.' })
+  }
+})
+
+export const experienceInputSchema = z.object({
+  experience_type: z.enum(['employment', 'project', 'volunteer']),
+  title: z.string().trim().min(1).max(160),
+  organization: z.string().trim().max(160),
+  description: z.string().trim().max(3000),
+  location: z.string().trim().max(120),
+  started_at: z.string().date().or(z.literal('')),
+  ended_at: z.string().date().or(z.literal('')),
+  is_current: z.boolean(),
+  visibility: z.enum(['private', 'public']),
+}).superRefine((experience, context) => {
+  if (experience.started_at && experience.ended_at && experience.ended_at < experience.started_at) {
+    context.addIssue({ code: 'custom', path: ['ended_at'], message: 'End date cannot be before start date.' })
+  }
+  if (experience.is_current && experience.ended_at) {
+    context.addIssue({ code: 'custom', path: ['ended_at'], message: 'Current experience cannot have an end date.' })
+  }
+})
+
+export const credentialIssuerRequestSchema = z.object({
+  display_name: z.string().trim().min(1).max(120),
+  issuer_url: z.string().url().max(2048).refine((value) => {
+    try {
+      const url = new URL(value)
+      return url.protocol === 'https:' && !url.username && !url.password
+    } catch {
+      return false
+    }
+  }, 'Use a public HTTPS issuer URL without credentials.'),
+  issuer_type: z.enum(['education', 'employer', 'certification_body', 'other']),
+})
+
+export type CredentialInput = z.infer<typeof credentialInputSchema>
+export type ExperienceInput = z.infer<typeof experienceInputSchema>
+export type CredentialIssuerRequest = z.infer<typeof credentialIssuerRequestSchema>
+
 const publicWebUrlSchema = z.string().url().refine((value) => {
   try {
     return ['http:', 'https:'].includes(new URL(value).protocol)
@@ -21,9 +81,10 @@ export const publicPassportEvidenceSchema = z.object({
 export const publicPassportSkillSchema = z.object({
   name: z.string().min(1).max(80),
   category: z.string().nullable(),
-  proficiency: z.enum(['beginner', 'intermediate', 'advanced', 'unsure']),
+  proficiency: z.enum(['beginner', 'intermediate', 'advanced', 'expert', 'unsure']),
   status_labels: z.array(z.enum([
     'Self-reported',
+    'Verified',
     'Evidence submitted',
     'Human reviewed',
     'External credential',
@@ -72,6 +133,24 @@ export const publicPassportSchema = z.object({
   skills: z.array(publicPassportSkillSchema),
   other_evidence: z.array(publicPassportEvidenceSchema),
   assessments: z.array(publicPassportAssessmentSchema),
+  credentials: z.array(z.object({
+    title: z.string().min(1).max(160),
+    credential_type: z.enum(credentialTypes),
+    issuer_name: z.string().min(1).max(160),
+    issued_at: z.string().nullable(),
+    expires_at: z.string().nullable(),
+    status: z.enum(['self_reported', 'pending_verification', 'verified', 'expired', 'revoked']),
+    credential_identifier: z.string().nullable(),
+  }).strict()).default([]),
+  experience: z.array(z.object({
+    experience_type: z.enum(['employment', 'project', 'volunteer']),
+    title: z.string().min(1).max(160),
+    organization: z.string().nullable(),
+    description: z.string().nullable(),
+    started_at: z.string().nullable(),
+    ended_at: z.string().nullable(),
+    is_current: z.boolean(),
+  }).strict()).default([]),
 }).strict()
 
 export const passportCorrectionRequestSchema = z.object({

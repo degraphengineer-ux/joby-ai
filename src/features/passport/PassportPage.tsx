@@ -20,6 +20,7 @@ import {
 } from './passportService'
 import { PassportStatusExplainer } from './PassportStatusExplainer'
 import { buildPassportPdf } from './passportPdf'
+import { PassportExtensionSections } from './PassportExtensionSections'
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat(undefined, {
@@ -490,6 +491,18 @@ export function PassportPage() {
           </EmptyState>
         )}
       </section>
+
+      {user && (
+        <div className="mb-8">
+          <PassportExtensionSections
+            userId={user.id}
+            skills={passport.skills}
+            credentials={passport.credentials}
+            experiences={passport.experiences}
+            onChanged={loadPassport}
+          />
+        </div>
+      )}
 
       <PassportStatusExplainer />
     </PageContainer>

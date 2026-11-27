@@ -217,17 +217,19 @@ export function PublicPassportPage() {
                         <h3 className="text-lg font-bold text-navy">{skill.name}</h3>
                         {skill.category && <p className="mt-1 text-sm text-slatebody">{skill.category}</p>}
                       </div>
-                      <Badge tone="teal">{({
+                      <Badge tone={skill.status_labels.includes('Verified') ? 'teal' : 'slate'}>{({
                         beginner: 'Beginner',
                         intermediate: 'Intermediate',
                         advanced: 'Advanced',
+                        expert: 'Expert',
                         unsure: 'Not sure',
                       })[skill.proficiency]}</Badge>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      {skill.status_labels.map((label) => (
+                      {skill.status_labels.filter((label) => label !== 'Verified').map((label) => (
                         <EvidenceStatusBadge key={label} label={label} />
                       ))}
+                      {skill.status_labels.includes('Verified') && <Badge tone="teal">Verified skill</Badge>}
                     </div>
                     {skill.evidence.length ? (
                       <ul className="mt-4 space-y-3 border-t border-navy/10 pt-4">
@@ -248,6 +250,36 @@ export function PublicPassportPage() {
             <EmptyState title="No skills are listed">No skills have been shared on this passport.</EmptyState>
           )}
         </section>
+
+        {passport.credentials.length > 0 && (
+          <section aria-labelledby="public-credentials-heading" className="mb-8">
+            <h2 id="public-credentials-heading" className="mb-4 text-xl font-bold text-navy">Credentials</h2>
+            <ul className="grid gap-4 md:grid-cols-2">{passport.credentials.map((credential, index) => (
+              <li key={`${credential.title}-${credential.issuer_name}-${index}`}>
+                <Card as="article" className="h-full p-5 shadow-card print:break-inside-avoid">
+                  <h3 className="font-bold text-navy">{credential.title}</h3>
+                  <p className="mt-1 text-sm text-slatebody">{credential.issuer_name} · {credential.credential_type.replace(/_/g, ' ')}</p>
+                  <p className="mt-2 text-xs capitalize text-slatebody">{credential.status.replace(/_/g, ' ')}{credential.issued_at ? ` · Issued ${formatDate(credential.issued_at)}` : ''}{credential.expires_at ? ` · Expires ${formatDate(credential.expires_at)}` : ''}</p>
+                </Card>
+              </li>
+            ))}</ul>
+          </section>
+        )}
+
+        {passport.experience.length > 0 && (
+          <section aria-labelledby="public-experience-heading" className="mb-8">
+            <h2 id="public-experience-heading" className="mb-4 text-xl font-bold text-navy">Experience</h2>
+            <ul className="space-y-3">{passport.experience.map((item, index) => (
+              <li key={`${item.title}-${item.started_at}-${index}`}>
+                <Card as="article" className="p-5 shadow-card print:break-inside-avoid">
+                  <h3 className="font-bold text-navy">{item.title}{item.organization ? ` · ${item.organization}` : ''}</h3>
+                  <p className="mt-1 text-sm capitalize text-slatebody">{item.experience_type}{item.started_at ? ` · ${item.started_at}` : ''}{item.is_current ? ' · Current' : item.ended_at ? ` – ${item.ended_at}` : ''}</p>
+                  {item.description && <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slatebody">{item.description}</p>}
+                </Card>
+              </li>
+            ))}</ul>
+          </section>
+        )}
 
         {passport.other_evidence.length > 0 && (
           <section aria-labelledby="public-other-evidence-heading" className="mb-8">

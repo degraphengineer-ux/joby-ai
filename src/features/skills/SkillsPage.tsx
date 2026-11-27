@@ -12,7 +12,7 @@ import { PageHeading } from '../../components/layout/PageHeading'
 import { displayDatabaseError } from '../../lib/displayErrors'
 import { useAuth } from '../auth/useAuth'
 import { initialProfileName } from '../profile/profileService'
-import { emptySkill, proficiencyLabels, proficiencyLevels, skillSchema, type Skill, type SkillInput } from './skillSchema'
+import { emptySkill, proficiencyLabels, proficiencyLevels, skillSchema, skillTypeLabels, skillTypes, type Skill, type SkillInput } from './skillSchema'
 import { createSkill, deleteSkill, listSkills, updateSkill } from './skillsService'
 
 function getValidationMessage(error: { issues: { path: PropertyKey[]; message: string }[] }) {
@@ -91,6 +91,9 @@ export function SkillsPage() {
       category: skill.category ?? '',
       self_reported_level: skill.self_reported_level,
       description: skill.description ?? '',
+      skill_type: skill.skill_type ?? 'hard_skill',
+      taxonomy_framework: skill.taxonomy_framework ?? '',
+      taxonomy_code: skill.taxonomy_code ?? '',
     })
     setEditingId(skill.id)
     setFieldErrors({})
@@ -186,6 +189,14 @@ export function SkillsPage() {
           </div>
           <form onSubmit={handleSave} noValidate className="space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
+              <SelectField
+                label="Skill type"
+                id="skill_type"
+                value={draft.skill_type ?? 'hard_skill'}
+                onChange={(event) => setDraft((current) => ({ ...current, skill_type: event.target.value as SkillInput['skill_type'] }))}
+              >
+                {skillTypes.map((type) => <option key={type} value={type}>{skillTypeLabels[type]}</option>)}
+              </SelectField>
               <div>
                 <Input
                   label="Skill name"
@@ -199,6 +210,29 @@ export function SkillsPage() {
                   aria-describedby={fieldErrors.name ? 'skill-name-error' : undefined}
                 />
                 {fieldErrors.name && <p id="skill-name-error" className="mt-1 text-sm text-error">{fieldErrors.name}</p>}
+              </div>
+              <div>
+                <Input
+                  label="Taxonomy framework (optional)"
+                  name="taxonomy_framework"
+                  maxLength={40}
+                  placeholder="e.g. joby-sample"
+                  value={draft.taxonomy_framework ?? ''}
+                  onChange={(event) => setDraft((current) => ({ ...current, taxonomy_framework: event.target.value }))}
+                  aria-invalid={Boolean(fieldErrors.taxonomy_framework)}
+                />
+              </div>
+              <div>
+                <Input
+                  label="Taxonomy code (optional)"
+                  name="taxonomy_code"
+                  maxLength={100}
+                  value={draft.taxonomy_code ?? ''}
+                  onChange={(event) => setDraft((current) => ({ ...current, taxonomy_code: event.target.value }))}
+                  aria-invalid={Boolean(fieldErrors.taxonomy_code)}
+                  aria-describedby={fieldErrors.taxonomy_code ? 'skill-taxonomy-code-error' : undefined}
+                />
+                {fieldErrors.taxonomy_code && <p id="skill-taxonomy-code-error" className="mt-1 text-sm text-error">{fieldErrors.taxonomy_code}</p>}
               </div>
               <div>
                 <Input
@@ -284,12 +318,13 @@ export function SkillsPage() {
                   <div className="min-w-0">
                     <h2 className="break-words text-lg font-bold text-navy">{skill.name}</h2>
                     {skill.category && <p className="mt-1 text-sm text-slatebody">{skill.category}</p>}
+                    <p className="mt-1 text-xs capitalize text-slatebody">{skillTypeLabels[skill.skill_type ?? 'hard_skill']}{skill.taxonomy_framework && skill.taxonomy_code ? ` · ${skill.taxonomy_framework}: ${skill.taxonomy_code}` : ''}</p>
                   </div>
                   <Badge tone="teal">{proficiencyLabels[skill.self_reported_level]}</Badge>
                 </div>
                 {skill.description && <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slatebody">{skill.description}</p>}
                 <p className="mt-4 text-xs text-slatebody">
-                  Self-reported · Updated {new Date(skill.updated_at).toLocaleDateString()}
+                  Self-reported{skill.verified_level ? ` · Verified ${proficiencyLabels[skill.verified_level]}` : ''} · Updated {new Date(skill.updated_at).toLocaleDateString()}
                 </p>
                 <div className="mt-5 flex gap-2 border-t border-navy/10 pt-4">
                   <Button variant="secondary" onClick={() => startEdit(skill)} disabled={isSaving}>

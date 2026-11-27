@@ -36,6 +36,9 @@ export async function createSkill(
       category: input.category || null,
       self_reported_level: input.self_reported_level,
       description: input.description || null,
+      skill_type: input.skill_type ?? 'hard_skill',
+      taxonomy_framework: input.taxonomy_framework || null,
+      taxonomy_code: input.taxonomy_code || null,
       source,
     })
     .select('*')
@@ -57,6 +60,9 @@ export async function updateSkill(
       category: input.category || null,
       self_reported_level: input.self_reported_level,
       description: input.description || null,
+      skill_type: input.skill_type ?? 'hard_skill',
+      taxonomy_framework: input.taxonomy_framework || null,
+      taxonomy_code: input.taxonomy_code || null,
     })
     .eq('id', skillId)
     .eq('user_id', userId)

@@ -15,6 +15,8 @@ Use `--remote` explicitly: the CLI otherwise targets the local database by defau
 
 The standard migration set in `supabase/migrations/` contains the MVP schema, security, seed, private storage, passport sharing, profile trigger, hardening and the scheduled Phase 11 P1 integrations. `review_records` is created by the Skills Passport migration; the Phase 11 migration adds reviewer consent/authorization, audit material, the AI operational log table, aggregate impact RPC and assessment definitions.
 
+`20261127110000_expand_skills_passport.sql` adds owner-scoped credential and experience records, append-only credential event history, verified-issuer registry fields, skill taxonomy references, sample career-role skill maps/resources, and per-link scoped sharing. Share tokens are random and only their SHA-256 digests are stored; creation/revocation/public retrieval use narrowly scoped RPCs. Candidate-entered credentials cannot set issuer, proof, verified status or lifecycle changes. Issuer verification is currently an administrator-managed process; this migration does not itself implement a VC signature-verification endpoint or connect to LMS providers. Sample role matches and learning resources are guidance only, not official job matching or qualification equivalencies.
+
 ## Authentication migration
 
 Apply `20261124000060_create_profile_on_auth.sql` with the core migrations. It creates a `profiles` row inside the auth user creation transaction. Confirm the migration target and trigger in a test project before production deployment.

@@ -39,9 +39,27 @@ export async function buildPassportPdf(passport: PrivatePassport): Promise<Uint8
     addText(skill.name, 11, true, 1)
     addText([
       skill.category,
-      `Self-reported proficiency: ${skill.self_reported_level}`,
+      `${skill.verified_level ? `Verified proficiency: ${skill.verified_level}` : `Self-reported proficiency: ${skill.self_reported_level}`}`,
     ].filter(Boolean).join(' | '), 9, false, 1)
     if (skill.description) addText(skill.description, 9, false, 4)
+  }
+
+  addText('Credential wallet', 14, true, 4)
+  const credentials = passport.credentials ?? []
+  if (!credentials.length) addText('No credentials added.', 10)
+  for (const credential of credentials) {
+    addText(`${credential.title} (${credential.credential_type.replace(/_/g, ' ')})`, 11, true, 1)
+    addText(`${credential.issuer_name} · ${credential.status.replace(/_/g, ' ')}`, 9, false, 1)
+    addText(`Issued ${credential.issued_at ?? 'date not provided'}${credential.expires_at ? ` · Expires ${credential.expires_at}` : ''}`, 9, false, 2)
+  }
+
+  addText('Work, projects and volunteering', 14, true, 4)
+  const experiences = passport.experiences ?? []
+  if (!experiences.length) addText('No experience records added.', 10)
+  for (const experience of experiences) {
+    addText(`${experience.title}${experience.organization ? ` · ${experience.organization}` : ''} (${experience.experience_type})`, 11, true, 1)
+    addText(`${experience.started_at ?? 'Start date not provided'}${experience.is_current ? ' · Current' : experience.ended_at ? ` – ${experience.ended_at}` : ''}`, 9, false, 1)
+    if (experience.description) addText(experience.description, 9, false, 3)
   }
 
   addText('Supporting evidence', 14, true, 4)

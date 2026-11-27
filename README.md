@@ -9,13 +9,15 @@ Joby AI is an evidence-first skills profile and practical assessment platform. I
 ## What the MVP includes
 
 - Email/password registration and sign-in with protected candidate routes.
-- Candidate profile and self-reported skills management.
+- Candidate profile and skills management with explicit skill types, self-reported proficiency, verified-level separation and optional taxonomy identifiers.
 - Evidence records for text samples, project URLs, GitHub URLs and supported file uploads.
 - Private evidence storage with authenticated upload validation.
 - Gemini-powered skill suggestions from user-provided text, evidence descriptions, bounded text extracted from private PDFs, or a public GitHub root README. Candidates accept, edit or reject each suggestion; PDFs remain private, arbitrary URLs are not fetched, and repository code is never fetched or executed.
 - Web Development Fundamentals, Data Analysis, and Customer Support assessments with fixed, server-validated rubrics. The server calculates scores; URLs alone are not assessed.
-- Private Skills Passport preview and revocable public sharing through an allowlisted database function.
-- Browser-generated PDF export of the Skills Passport.
+- Private Skills Passport preview with a credential wallet, structured work/project/volunteer history, and completed assessments.
+- Existing public passport links plus separate section- and item-scoped share links with optional expiry, independent revocation and QR codes.
+- Browser-generated PDF export of the private Skills Passport.
+- Sample role-to-skill gap comparisons and linked learning resources; these are indicative matches, not employer job matches or qualification equivalencies.
 - Reviewer queue gated by explicit candidate consent and an administrator-managed reviewer allowlist. Decisions identify the reviewer, reviewed materials, notes and timestamp.
 - Aggregated product-activity dashboard with real record counts and no personal identifiers or employment-outcome claims.
 - Minimal AI operational logs containing status and model metadata only, never prompts, documents or model responses.
@@ -93,6 +95,8 @@ Supabase provides the function runtime with its project URL and keys. Configure 
 ## Supabase setup and migrations
 
 The standard schema and security changes are versioned in `supabase/migrations/`. The assessment definition is seeded by a migration; there is no separate SQL seed file. See [supabase/README.md](./supabase/README.md) for migration history, storage policies, AI functions and security details.
+
+The additive `20261127110000_expand_skills_passport.sql` migration adds private credential and experience records, credential event history, a taxonomy registry, sample career-role requirements and learning resources, and hashed bearer-token share links. User-entered credentials remain self-reported; only trusted server-side operations can mark an issuer or credential verified. Issuer verification workflows, cryptographic credential-proof validation, provider/LMS ingestion, and official qualification-framework crosswalks are not yet configured. The PDF export is not a cryptographically verified credential.
 
 For a project you control:
 
