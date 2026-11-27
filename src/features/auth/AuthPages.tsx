@@ -74,14 +74,14 @@ export function AuthPage({ mode }: AuthPageProps) {
           password: result.data.password,
           options: {
             data: { display_name: displayName },
-            emailRedirectTo: `${window.location.origin}/onboarding`,
+            emailRedirectTo: `${window.location.origin}/dashboard`,
           },
         })
 
         if (signUpError) throw signUpError
 
         setSuccess(
-          'Account created. If email confirmation is enabled, confirm your email before signing in.',
+          'Account created. Check your email and follow the verification link to open your dashboard.',
         )
         setPassword('')
       } else {
