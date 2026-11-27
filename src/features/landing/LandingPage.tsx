@@ -82,17 +82,44 @@ const evidenceStatuses = [
   },
 ]
 
-function ScreenshotPlaceholder({ label }: { label: string }) {
+function ProductScreenshot({
+  src,
+  alt,
+  label,
+  className = '',
+}: {
+  src: string
+  alt: string
+  label: string
+  className?: string
+}) {
   return (
-    <div
-      className="landing-screenshot-placeholder"
-      role="img"
-      aria-label={`${label} screenshot placeholder. Product screenshots will be added before launch.`}
-    >
-      <span className="landing-screenshot-placeholder__label">{label}</span>
-      <span className="landing-screenshot-placeholder__note">
-        Screenshot placeholder — product image to be added
-      </span>
+    <figure className={`landing-screenshot ${className}`}>
+      <img src={src} alt={alt} loading="lazy" decoding="async" />
+      <figcaption>{label}</figcaption>
+    </figure>
+  )
+}
+
+function ProductScreenshotGallery() {
+  return (
+    <div className="landing-screenshot-gallery">
+      <ProductScreenshot
+        src="/images/evidence-preview.png"
+        alt="Joby AI evidence form showing private-by-default controls and links to skills"
+        label="Evidence with context"
+        className="landing-screenshot-gallery__featured"
+      />
+      <ProductScreenshot
+        src="/images/skills-preview.png"
+        alt="Joby AI skills page showing a candidate's recorded skills and self-reported proficiency"
+        label="Skills"
+      />
+      <ProductScreenshot
+        src="/images/assessment-preview.png"
+        alt="Joby AI practical assessments page with rubric-based tasks and skill quizzes"
+        label="Practical assessments"
+      />
     </div>
   )
 }
@@ -143,7 +170,12 @@ export function LandingPage() {
             </p>
 
             <div className="landing-hero__visual mt-12 w-full sm:mt-16">
-              <ScreenshotPlaceholder label="Skills Passport" />
+              <ProductScreenshot
+                src="/images/passport-preview.png"
+                alt="Joby AI public Skills Passport showing a profile, skills with supporting evidence, and completed assessments"
+                label="A candidate-controlled Skills Passport"
+                className="landing-screenshot--passport"
+              />
             </div>
           </PageContainer>
           <div className="landing-hero__orb landing-hero__orb--one" aria-hidden="true" />
@@ -220,7 +252,7 @@ export function LandingPage() {
                 <ArrowRight size={17} aria-hidden="true" />
               </a>
             </div>
-            <ScreenshotPlaceholder label="Evidence and skills" />
+            <ProductScreenshotGallery />
           </PageContainer>
         </section>
 
