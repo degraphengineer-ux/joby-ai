@@ -134,25 +134,26 @@ export function DashboardPage() {
 
           {next && NextIcon && (
             <section aria-label="Recommended next step" className="mt-7">
-              <Card className="border-navy bg-navy p-6 text-white shadow-card sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-8">
-                <div className="flex items-start gap-4">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/10 text-teal">
+              <div className="relative isolate overflow-hidden rounded-2xl border border-navy bg-navy p-5 text-white shadow-soft sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-7">
+                <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 -z-10 h-64 w-64 rounded-full bg-coral/10 blur-3xl" />
+                <div className="flex min-w-0 items-start gap-4">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/10 text-coral">
                     <NextIcon size={21} aria-hidden="true" />
                   </span>
-                  <div>
-                    <p className="text-sm font-bold text-teal-200">Recommended next step</p>
-                    <h2 className="mt-1 text-xl font-bold">{next.title}</h2>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-coral">Recommended next step</p>
+                    <h2 className="mt-2 text-xl font-bold tracking-tight sm:text-2xl">{next.title}</h2>
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">{next.body}</p>
                   </div>
                 </div>
                 <Link
                   to={next.href}
-                  className="mt-5 inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-bold text-navy hover:bg-teal/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:mt-0"
+                  className="mt-5 inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-coral px-5 text-sm font-bold text-navy transition-colors hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral sm:mt-0"
                 >
                   {next.label}
                   <ArrowRight size={17} aria-hidden="true" />
                 </Link>
-              </Card>
+              </div>
             </section>
           )}
 

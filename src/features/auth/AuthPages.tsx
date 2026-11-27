@@ -103,10 +103,7 @@ export function AuthPage({ mode }: AuthPageProps) {
   return (
     <AuthLayout>
       <section aria-labelledby="auth-heading">
-        <p className="text-center text-xs font-bold uppercase tracking-[0.18em] text-teal-700">
-          {isRegistration ? 'Your next step starts here' : 'Welcome back'}
-        </p>
-        <h1 id="auth-heading" className="mt-4 text-center text-4xl font-bold tracking-tight text-navy sm:text-5xl">
+        <h1 id="auth-heading" className="text-center text-4xl font-bold tracking-tight text-navy sm:text-5xl">
           {isRegistration ? 'Create your account.' : 'Good to see you.'}
         </h1>
         <p className="mx-auto mt-4 max-w-sm text-center leading-7 text-slatebody">
