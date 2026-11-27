@@ -47,6 +47,7 @@ export function Button({
       type={type}
       className={classes({ children, variant, size, className })}
       {...props}
+      data-gsap-hover
     >
       {children}
     </button>
@@ -64,6 +65,7 @@ export function ButtonLink({
     <a
       className={classes({ children, variant, size, className })}
       {...props}
+      data-gsap-hover
     >
       {children}
     </a>

@@ -14,6 +14,7 @@ export function Card({
   return (
     <Element
       className={`rounded-lg border border-stone bg-white ${className}`}
+      data-gsap-reveal
       {...props}
     >
       {children}

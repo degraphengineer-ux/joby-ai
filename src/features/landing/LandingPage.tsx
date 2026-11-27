@@ -94,7 +94,7 @@ function ProductScreenshot({
   className?: string
 }) {
   return (
-    <figure className={`landing-screenshot ${className}`}>
+    <figure data-gsap-reveal className={`landing-screenshot ${className}`}>
       <img src={src} alt={alt} loading="lazy" decoding="async" />
       <figcaption>{label}</figcaption>
     </figure>
@@ -217,7 +217,7 @@ export function LandingPage() {
 
             <div className="mt-12 grid gap-8 border-t border-navy/15 pt-7 md:grid-cols-3 md:gap-8">
               {workflow.map(({ icon: Icon, title, text }, index) => (
-                <article key={title} className="landing-step">
+                <article key={title} data-gsap-reveal className="landing-step">
                   <div className="flex items-center gap-3">
                     <span className="landing-step__number">0{index + 1}</span>
                     <span className="h-px flex-1 bg-navy/10" />
@@ -275,7 +275,7 @@ export function LandingPage() {
 
             <div className="mt-12 grid gap-4 sm:grid-cols-2">
               {capabilities.map(({ icon: Icon, title, text }) => (
-                <article key={title} className="landing-capability">
+                <article key={title} data-gsap-reveal className="landing-capability">
                   <span className="landing-capability__icon">
                     <Icon size={22} aria-hidden="true" />
                   </span>
@@ -319,7 +319,7 @@ export function LandingPage() {
               </ul>
             </div>
 
-            <div className="landing-status-card">
+            <div data-gsap-reveal className="landing-status-card">
               <div className="mb-5 flex items-center gap-3 border-b border-navy/10 pb-5">
                 <span className="grid h-10 w-10 place-items-center rounded-lg bg-teal/10 text-teal-700">
                   <FileCheck2 size={21} aria-hidden="true" />

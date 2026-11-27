@@ -1062,3 +1062,11 @@ select:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+@media print {
+  [data-gsap-reveal] {
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
