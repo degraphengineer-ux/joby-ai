@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { ErrorState, SuccessState } from '../../components/ui/Feedback'
@@ -62,6 +63,7 @@ const shareSections = ['profile', 'skills', 'credentials', 'experience', 'assess
 
 type Props = {
   userId: string
+  targetRole: string
   skills: Skill[]
   credentials: PassportCredential[]
   experiences: PassportExperience[]
@@ -175,8 +177,9 @@ function ExperienceForm({ userId, onSaved }: { userId: string; onSaved: () => Pr
   )
 }
 
-export function PassportExtensionSections({ userId, skills, credentials, experiences, onChanged }: Props) {
+export function PassportExtensionSections({ userId, targetRole, skills, credentials, experiences, onChanged }: Props) {
   const [paths, setPaths] = useState<CareerPath[]>([])
+  const [selectedRoleId, setSelectedRoleId] = useState('all')
   const [links, setLinks] = useState<PassportShareLink[]>([])
   const [issuerRequests, setIssuerRequests] = useState<CredentialIssuer[]>([])
   const [issuerDraft, setIssuerDraft] = useState(emptyIssuer)
@@ -208,11 +211,20 @@ export function PassportExtensionSections({ userId, skills, credentials, experie
     let active = true
     Promise.all([listCareerPaths(userId), listPassportShareLinks(userId), listCredentialIssuerRequests(userId)])
       .then(([careerPaths, shareLinks, issuerProfiles]) => {
-        if (active) { setPaths(careerPaths); setLinks(shareLinks); setIssuerRequests(issuerProfiles) }
+        if (active) {
+          setPaths(careerPaths)
+          setLinks(shareLinks)
+          setIssuerRequests(issuerProfiles)
+          const normalizedTarget = targetRole.trim().toLocaleLowerCase()
+          const targetPath = careerPaths.find((path) =>
+            path.title.trim().toLocaleLowerCase() === normalizedTarget
+            || path.slug.replace(/-/g, ' ').toLocaleLowerCase() === normalizedTarget)
+          if (targetPath) setSelectedRoleId(targetPath.id)
+        }
       })
       .catch((cause: unknown) => { if (active) setError(displayDatabaseError(cause)) })
     return () => { active = false }
-  }, [userId])
+  }, [userId, targetRole])
 
   const updateVisibility = async (type: 'credential' | 'experience', id: string, visibility: 'private' | 'public') => {
     setError(null)
@@ -337,12 +349,27 @@ export function PassportExtensionSections({ userId, skills, credentials, experie
       </section>
 
       <section aria-labelledby="career-paths-heading">
-        <div className="mb-4"><SectionTitle>Career and learning matches</SectionTitle><p className="mt-1 text-sm text-slatebody">Compare your registered skills with sample role requirements. Matches use skill names, not an external certification.</p></div>
-        <div className="grid gap-4 md:grid-cols-2">{paths.map((path) => (
+        <div className="mb-4"><SectionTitle>Career and learning matches</SectionTitle><p className="mt-1 text-sm text-slatebody">Compare your registered skills with the available role requirements. Skill names and shared taxonomy codes are used; a match does not verify a skill.</p></div>
+        {paths.length > 0 && <div className="mb-4 max-w-md">
+          <SelectField label="Career role" value={selectedRoleId} onChange={(event) => setSelectedRoleId(event.target.value)}>
+            <option value="all">Compare all available roles</option>
+            {paths.map((path) => <option key={path.id} value={path.id}>{path.title}</option>)}
+          </SelectField>
+          {targetRole && <p className="mt-1 text-xs text-slatebody">Your profile target role: {targetRole}</p>}
+        </div>}
+        {paths.length === 0 && <Card className="p-5 text-sm text-slatebody">
+          Career roles are not available right now. Please try again later.
+        </Card>}
+        <div className="grid gap-4 md:grid-cols-2">{paths.filter((path) => selectedRoleId === 'all' || path.id === selectedRoleId).map((path) => (
           <Card key={path.id} className="p-5 shadow-card">
             <div className="flex items-center justify-between gap-3"><h3 className="font-bold text-navy">{path.title}</h3><span className="text-sm font-semibold text-teal-700">{path.matchPercent}% match</span></div>
             <p className="mt-1 text-xs text-slatebody">{path.framework} · {path.region} · {path.qualification_level}</p>
-            <p className="mt-3 text-sm text-slatebody">{path.matchedSkills.length} of {path.requiredSkills.length} mapped skills found ({path.verifiedMatchedSkills.length} verified). Missing: {path.missingSkills.join(', ') || 'none listed'}.</p>
+            {path.requiredSkills.length > 0 ? <>
+              <p className="mt-3 text-sm text-slatebody">{path.matchedSkills.length} of {path.requiredSkills.length} required skills found ({path.verifiedMatchedSkills.length} verified).</p>
+              {path.matchedSkills.length > 0 && <p className="mt-2 text-sm text-slatebody"><span className="font-semibold text-navy">Skills you have:</span> {path.matchedSkills.map((name) => `${name}${path.verifiedMatchedSkills.includes(name) ? ' (verified)' : ''}`).join(', ')}.</p>}
+              {path.missingSkills.length > 0 && <p className="mt-2 text-sm text-slatebody"><span className="font-semibold text-navy">Skills to build:</span> {path.missingSkills.join(', ')}.</p>}
+              {path.matchedSkills.length === 0 && <Link to="/skills" className="mt-3 inline-flex font-semibold text-teal-700 underline">Add your skills to see your match</Link>}
+            </> : <p className="mt-3 text-sm text-slatebody">No required skills are configured for this role yet.</p>}
             {path.resources.length > 0 && <ul className="mt-3 space-y-2 border-t border-navy/10 pt-3">{path.resources.map((resource) => (
               <li key={resource.id}><a href={resource.resource_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-teal-700 underline">{resource.skill_name}: {resource.title}</a><span className="ml-1 text-xs text-slatebody">({resource.provider})</span></li>
             ))}</ul>}

@@ -79,4 +79,25 @@ describe('Skills Passport extensions', () => {
       matchPercent: 67,
     })
   })
+
+  it('matches equivalent skill names and shared taxonomy codes', () => {
+    const match = matchCareerRequirements(
+      [
+        { name: 'Customer service', taxonomy_framework: 'joby-sample', taxonomy_code: 'SOFT-CUSTOMER-SERVICE' },
+        { name: 'Communication' },
+      ],
+      [
+        { name: 'CUSTOMER-service', verified_level: null, taxonomy_framework: 'joby-sample', taxonomy_code: 'SOFT-CUSTOMER-SERVICE' },
+        { name: 'Communication', verified_level: 'advanced' },
+        { name: 'communication', verified_level: null },
+      ],
+    )
+
+    expect(match).toEqual({
+      matchedSkills: ['Customer service', 'Communication'],
+      verifiedMatchedSkills: ['Communication'],
+      missingSkills: [],
+      matchPercent: 100,
+    })
+  })
 })

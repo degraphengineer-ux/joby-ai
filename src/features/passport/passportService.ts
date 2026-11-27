@@ -16,7 +16,7 @@ import {
   type ExperienceInput,
   type PublicPassport,
 } from './passportSchema'
-import { matchCareerRequirements } from './careerMatching'
+import { matchCareerRequirements, type CareerSkillRequirement } from './careerMatching'
 
 export type PassportReviewRecord = {
   evidence_id: string
@@ -384,18 +384,24 @@ export async function listCareerPaths(userId: string): Promise<CareerPath[]> {
     const client = getClient()
     const [rolesResult, requirementsResult, skillsResult] = await Promise.all([
       client.from('career_roles').select('id,slug,title,framework,region,qualification_level').order('title'),
-      client.from('career_role_skills').select('role_id,skill_name,importance').order('skill_name'),
-      client.from('skills').select('name,verified_level').eq('user_id', userId),
+      client.from('career_role_skills').select('role_id,skill_name,taxonomy_framework,taxonomy_code,importance').order('skill_name'),
+      client.from('skills').select('name,verified_level,taxonomy_framework,taxonomy_code').eq('user_id', userId),
     ])
     for (const result of [rolesResult, requirementsResult, skillsResult]) {
       if (result.error) throw result.error
     }
     const requirements = requirementsResult.data ?? []
-    const userSkills = (skillsResult.data ?? []) as Pick<Skill, 'name' | 'verified_level'>[]
+    const userSkills = (skillsResult.data ?? []) as Pick<Skill, 'name' | 'verified_level' | 'taxonomy_framework' | 'taxonomy_code'>[]
     const missingNames = new Set<string>()
     const paths = (rolesResult.data ?? []).map((role) => {
-      const requiredSkills = requirements.filter((item) => item.role_id === role.id).map((item) => item.skill_name)
-      const match = matchCareerRequirements(requiredSkills, userSkills)
+      const roleRequirements = requirements.filter((item) => item.role_id === role.id)
+      const requiredSkills = roleRequirements.map((item) => item.skill_name)
+      const mappedRequirements: CareerSkillRequirement[] = roleRequirements.map((item) => ({
+        name: item.skill_name,
+        taxonomy_framework: item.taxonomy_framework,
+        taxonomy_code: item.taxonomy_code,
+      }))
+      const match = matchCareerRequirements(mappedRequirements, userSkills)
       const { matchedSkills, missingSkills } = match
       missingSkills.forEach((name) => missingNames.add(name))
       return {

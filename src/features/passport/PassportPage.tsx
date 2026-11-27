@@ -496,6 +496,7 @@ export function PassportPage() {
         <div className="mb-8">
           <PassportExtensionSections
             userId={user.id}
+            targetRole={passport.profile.target_role}
             skills={passport.skills}
             credentials={passport.credentials}
             experiences={passport.experiences}
