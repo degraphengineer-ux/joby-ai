@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut } from 'lucide-react'
+import { ArrowLeft, LogOut } from '../../components/ui/icons'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'

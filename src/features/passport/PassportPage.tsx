@@ -1,4 +1,4 @@
-import { AlertTriangle, Copy, Download, ExternalLink, Eye, EyeOff, FileText, LoaderCircle } from 'lucide-react'
+import { AlertTriangle, Copy, Download, ExternalLink, Eye, EyeOff, FileText, LoaderCircle } from '../../components/ui/icons'
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'
@@ -189,7 +189,7 @@ export function PassportPage() {
       <PageContainer className="max-w-3xl py-10">
         <EmptyState title="Your profile is not ready yet">
           <p>Complete your profile before previewing a Skills Passport.</p>
-          <Link className="mt-4 inline-flex min-h-11 items-center font-semibold text-teal-700" to="/profile">
+          <Link className="mt-4 inline-flex min-h-11 items-center font-semibold text-teal-700" to="/onboarding">
             Open your profile
           </Link>
         </EmptyState>
@@ -290,7 +290,7 @@ export function PassportPage() {
             {passport.profile.headline && <p className="mt-2 text-lg text-teal-700">{passport.profile.headline}</p>}
             {passport.profile.bio && <p className="mt-4 max-w-3xl whitespace-pre-line text-sm leading-7 text-slatebody">{passport.profile.bio}</p>}
           </div>
-          <Link to="/profile" className="inline-flex min-h-10 items-center text-sm font-semibold text-teal-700 hover:text-navy">
+          <Link to="/onboarding" className="inline-flex min-h-10 items-center text-sm font-semibold text-teal-700 hover:text-navy">
             Edit profile
           </Link>
         </div>

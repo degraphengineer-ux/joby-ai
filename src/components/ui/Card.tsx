@@ -13,7 +13,7 @@ export function Card({
 }: CardProps) {
   return (
     <Element
-      className={`rounded-xl border border-navy/10 bg-white ${className}`}
+      className={`rounded-lg border border-stone bg-white ${className}`}
       {...props}
     >
       {children}

@@ -1,4 +1,4 @@
-import { ArrowLeft, ExternalLink, LoaderCircle, Pencil, ShieldCheck, Sparkles, Trash2 } from 'lucide-react'
+import { ArrowLeft, ExternalLink, LoaderCircle, Pencil, ShieldCheck, Sparkles, Trash2 } from '../../components/ui/icons'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'

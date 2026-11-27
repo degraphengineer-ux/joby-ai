@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, LoaderCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, LoaderCircle } from '../../components/ui/icons'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'

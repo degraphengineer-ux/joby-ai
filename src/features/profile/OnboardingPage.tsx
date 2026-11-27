@@ -1,4 +1,4 @@
-import { Check, ChevronLeft, ChevronRight, LoaderCircle, Plus, X } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, LoaderCircle, Plus, X } from '../../components/ui/icons'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { ZodError } from 'zod'

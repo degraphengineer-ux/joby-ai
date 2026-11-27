@@ -1,20 +1,17 @@
 import {
   ArrowRight,
-  BadgeCheck,
   BriefcaseBusiness,
   Check,
   ClipboardCheck,
   FileCheck2,
   FileText,
   Globe2,
-  Layers3,
   LockKeyhole,
   ShieldCheck,
   Sparkles,
   Target,
   Upload,
-  UserRound,
-} from 'lucide-react'
+} from '../../components/ui/icons'
 import { ButtonLink } from '../../components/ui/Button'
 import { EvidenceStatusBadge } from '../../components/ui/EvidenceStatusBadge'
 import { PageContainer } from '../../components/layout/PageContainer'
@@ -24,44 +21,41 @@ import { SiteHeader } from '../../components/layout/SiteHeader'
 const workflow = [
   {
     icon: Upload,
-    step: '01',
-    title: 'Bring your evidence',
-    text: 'Add a project, work sample, portfolio link or a description of what you have done.',
+    title: 'Bring your work',
+    text: 'Add projects, work samples, portfolio links or a description of what you have done.',
   },
   {
     icon: ClipboardCheck,
-    step: '02',
-    title: 'Demonstrate the skill',
-    text: 'Review AI-suggested skills and complete a practical task with a clear rubric.',
+    title: 'Show what it demonstrates',
+    text: 'Connect evidence to skills and explore practical assessments with clear rubrics.',
   },
   {
     icon: Globe2,
-    step: '03',
-    title: 'Share your passport',
-    text: 'Present the evidence and context behind each skill in a profile you control.',
+    title: 'Share on your terms',
+    text: 'Build a Skills Passport that puts your experience in context and stays under your control.',
   },
 ]
 
-const features = [
+const capabilities = [
   {
     icon: FileText,
-    title: 'Evidence, not empty claims',
-    text: 'Connect each skill to real work, project links or submitted descriptions.',
+    title: 'Evidence with context',
+    text: 'Connect each skill to projects, work samples or descriptions—not just a list of claims.',
   },
   {
     icon: Target,
     title: 'Practical assessment',
-    text: 'Understand strengths and gaps through a fixed rubric, not a single opaque score.',
+    text: 'See strengths and next steps through a fixed rubric, not a single opaque score.',
   },
   {
-    icon: Layers3,
-    title: 'More than one career path',
-    text: 'Start with what you can demonstrate, whether it comes from web development, creative work or operations.',
+    icon: Sparkles,
+    title: 'AI that assists',
+    text: 'Review suggestions before they become part of your profile. AI feedback is advisory.',
   },
   {
     icon: LockKeyhole,
-    title: 'Sharing stays in your hands',
-    text: 'Private evidence remains separate from optional public profile sharing.',
+    title: 'Sharing you control',
+    text: 'Keep evidence private and choose which profile details to share publicly.',
   },
 ]
 
@@ -76,162 +70,97 @@ const evidenceStatuses = [
   },
   {
     label: 'AI-assisted assessment',
-    text: 'A rubric review was completed with AI assistance, not official certification.',
+    text: 'Reviewed with AI assistance against a rubric; not an official certification.',
   },
   {
     label: 'Human reviewed',
-    text: 'A real authorized reviewer recorded a review. This label appears only when such a review exists.',
+    text: 'An authorized reviewer recorded a review.',
   },
   {
     label: 'External credential',
-    text: 'A credential was checked through a documented external verification process.',
+    text: 'Checked through a documented external verification process.',
   },
 ]
 
+function ScreenshotPlaceholder({ label }: { label: string }) {
+  return (
+    <div
+      className="landing-screenshot-placeholder"
+      role="img"
+      aria-label={`${label} screenshot placeholder. Product screenshots will be added before launch.`}
+    >
+      <span className="landing-screenshot-placeholder__label">{label}</span>
+      <span className="landing-screenshot-placeholder__note">
+        Screenshot placeholder — product image to be added
+      </span>
+    </div>
+  )
+}
+
 export function LandingPage() {
   return (
-    <div id="top" className="min-h-screen bg-warm text-navy">
-      <div className="bg-teal/10 text-navy">
-        <PageContainer className="flex flex-col items-center justify-between gap-1 py-2 text-center text-xs font-semibold sm:flex-row sm:text-left sm:text-sm">
+    <div id="top" className="min-h-screen bg-white text-navy">
+      <div className="bg-navy text-white">
+        <PageContainer className="flex min-h-9 items-center justify-center gap-2 py-2 text-center text-xs font-medium sm:text-sm">
+          <ShieldCheck size={15} className="shrink-0 text-coral" aria-hidden="true" />
           <span>Skills deserve to be seen in context.</span>
           <a
             href="#trust"
-            className="inline-flex min-h-8 items-center gap-1 text-teal-700 underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+            className="font-semibold text-coral underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral"
           >
-            See how evidence is labeled
-            <ArrowRight size={15} aria-hidden="true" />
+            Learn about our approach
           </a>
         </PageContainer>
       </div>
       <SiteHeader />
 
       <main id="main-content" tabIndex={-1}>
-        <section className="overflow-hidden bg-warm">
-          <PageContainer className="grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[0.88fr_1.12fr] lg:gap-12 lg:py-20">
-            <div className="relative z-10 max-w-2xl">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal/20 bg-white px-3.5 py-1.5 text-sm font-semibold text-teal-700">
-                <ShieldCheck size={16} aria-hidden="true" />
-                Evidence-backed skills
-              </div>
-              <h1 className="text-[3.25rem] font-bold leading-[0.98] tracking-[-0.045em] text-navy sm:text-7xl lg:text-[5.5rem]">
-                Show what
-                <br />
-                you can do.
-              </h1>
-              <p className="mt-6 max-w-xl text-lg leading-8 text-slatebody sm:text-xl">
-                Turn projects, practical work and assessment results into a clear picture
-                of your abilities—beyond formal certificates alone.
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/signup" size="lg" variant="primary">
-                  Create your Skills Passport
-                  <ArrowRight size={18} aria-hidden="true" />
-                </ButtonLink>
-                <ButtonLink href="#how-it-works" size="lg" variant="secondary">
-                  See how it works
-                </ButtonLink>
-              </div>
-              <p className="mt-5 max-w-lg text-sm leading-6 text-slatebody">
-                You review AI suggestions. Each status explains what the evidence does—and
-                does not—show.
-              </p>
+        <section className="landing-hero">
+          <PageContainer className="relative z-10 flex flex-col items-center pt-14 text-center sm:pt-20 lg:pt-24">
+            <span className="inline-flex items-center gap-2 rounded-full border border-stone bg-white/80 px-4 py-2 text-sm font-semibold text-navy shadow-sm">
+              <Sparkles size={16} className="text-teal-700" aria-hidden="true" />
+              An evidence-first Skills Passport
+            </span>
+            <h1 className="mt-7 max-w-5xl text-5xl font-semibold leading-[1.04] tracking-[-0.055em] text-navy sm:text-6xl lg:text-7xl">
+              Your skills deserve
+              <br className="hidden sm:block" /> to be seen.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slatebody sm:text-xl">
+              Make your practical experience easier to understand. Bring your work together,
+              show what it demonstrates, and choose what you share.
+            </p>
+            <div className="mt-8 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
+              <ButtonLink href="/signup" size="lg" variant="primary">
+                Create your Skills Passport
+                <ArrowRight size={18} aria-hidden="true" />
+              </ButtonLink>
+              <ButtonLink href="#how-it-works" size="lg" variant="secondary">
+                Explore how it works
+              </ButtonLink>
             </div>
+            <p className="mt-4 text-sm text-slatebody">
+              Free to get started <span aria-hidden="true">·</span> Private by default
+            </p>
 
-            <div className="relative mx-auto w-full max-w-2xl lg:ml-auto">
-              <div
-                aria-hidden="true"
-                className="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-teal/15 sm:h-48 sm:w-48"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute -bottom-8 -left-7 h-32 w-32 rounded-full border-[18px] border-navy/5 sm:h-40 sm:w-40"
-              />
-              <div className="relative min-h-[390px] overflow-hidden rounded-[2rem] bg-teal/10 p-4 sm:min-h-[470px] sm:p-8">
-                <div
-                  aria-hidden="true"
-                  className="absolute right-8 top-8 h-16 w-16 rounded-2xl bg-teal/20 sm:right-12 sm:top-10 sm:h-24 sm:w-24"
-                />
-                <div className="relative mx-auto mt-5 max-w-md rounded-2xl border border-navy/10 bg-white p-5 shadow-soft sm:mt-8 sm:p-7">
-                  <div className="flex items-start justify-between gap-3 border-b border-navy/10 pb-5">
-                    <div className="flex items-center gap-3">
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-navy text-white">
-                        <UserRound size={21} aria-hidden="true" />
-                      </span>
-                      <div>
-                        <p className="text-xs font-semibold text-slatebody">Illustrative profile</p>
-                        <h2 className="mt-0.5 text-lg font-bold text-navy">Skills Passport</h2>
-                        <p className="text-sm text-slatebody">Practical work, in context</p>
-                      </div>
-                    </div>
-                    <span className="hidden items-center gap-1.5 rounded-full bg-teal/10 px-2.5 py-1 text-xs font-semibold text-teal-700 sm:inline-flex">
-                      <ShieldCheck size={14} aria-hidden="true" />
-                      Your profile
-                    </span>
-                  </div>
-
-                  <div className="mt-5 space-y-3">
-                    {[
-                      {
-                        icon: FileCheck2,
-                        title: 'Responsive layout',
-                        detail: 'Project work sample',
-                        status: 'Evidence submitted',
-                      },
-                      {
-                        icon: ClipboardCheck,
-                        title: 'Semantic HTML',
-                        detail: 'Practical rubric review',
-                        status: 'AI-assisted assessment',
-                      },
-                      {
-                        icon: BriefcaseBusiness,
-                        title: 'Project communication',
-                        detail: 'Candidate description',
-                        status: 'Self-reported',
-                      },
-                    ].map((skill) => (
-                      <div key={skill.title} className="flex items-start gap-3 rounded-xl bg-warm p-3.5">
-                        <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white text-teal">
-                          <skill.icon size={16} aria-hidden="true" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-bold text-navy">{skill.title}</p>
-                          <p className="mt-0.5 text-xs text-slatebody">{skill.detail}</p>
-                        </div>
-                        <span className="hidden sm:block">
-                          <EvidenceStatusBadge
-                            label={skill.status as 'Self-reported' | 'Evidence submitted' | 'AI-assisted assessment'}
-                          />
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-5 flex items-center gap-2 border-t border-navy/10 pt-4 text-sm font-semibold text-navy">
-                    <BadgeCheck size={18} className="shrink-0 text-teal" aria-hidden="true" />
-                    The source is shown beside each skill
-                  </div>
-                </div>
-                <div className="absolute bottom-4 right-3 flex items-center gap-2 rounded-xl border border-navy/10 bg-white px-3 py-2.5 text-xs font-semibold text-navy shadow-card sm:bottom-8 sm:right-1 sm:px-4 sm:py-3 sm:text-sm">
-                  <Sparkles size={16} className="text-teal" aria-hidden="true" />
-                  AI-assisted, never a certification
-                </div>
-              </div>
+            <div className="landing-hero__visual mt-12 w-full sm:mt-16">
+              <ScreenshotPlaceholder label="Skills Passport" />
             </div>
           </PageContainer>
+          <div className="landing-hero__orb landing-hero__orb--one" aria-hidden="true" />
+          <div className="landing-hero__orb landing-hero__orb--two" aria-hidden="true" />
         </section>
 
         <section aria-label="Joby AI principles" className="border-y border-navy/10 bg-white">
-          <PageContainer className="grid gap-5 py-6 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-navy/10 sm:py-7">
+          <PageContainer className="grid gap-5 py-7 sm:grid-cols-3 sm:gap-0 sm:divide-x sm:divide-navy/10 sm:py-8">
             {[
               ['Grounded in evidence', 'Connect skills to real work.'],
-              ['Clear about AI', 'Suggestions are reviewed by you.'],
+              ['Clear about AI', 'You review suggestions.'],
               ['Private by default', 'Share only what you choose.'],
             ].map(([title, text]) => (
-              <div key={title} className="flex items-start gap-3 sm:px-6 first:sm:pl-0 last:sm:pr-0">
-                <Check size={18} className="mt-0.5 shrink-0 text-teal" aria-hidden="true" />
+              <div key={title} className="flex items-start gap-3 sm:px-7 first:sm:pl-0 last:sm:pr-0">
+                <Check size={19} className="mt-0.5 shrink-0 text-teal-700" aria-hidden="true" />
                 <div>
-                  <p className="font-bold text-navy">{title}</p>
+                  <p className="font-semibold text-navy">{title}</p>
                   <p className="mt-1 text-sm text-slatebody">{text}</p>
                 </div>
               </div>
@@ -241,45 +170,47 @@ export function LandingPage() {
 
         <section id="how-it-works" className="bg-white">
           <PageContainer className="py-16 sm:py-20 lg:py-24">
-            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-              <div className="max-w-2xl">
-                <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">How it works</p>
-                <h2 className="mt-3 text-3xl font-bold tracking-tight text-navy sm:text-5xl">
-                  From practical work to a shareable profile.
-                </h2>
-              </div>
-              <p className="max-w-md leading-7 text-slatebody">
-                A straightforward way to gather your work, understand what it demonstrates,
-                and decide what to share.
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">
+                Your experience, made visible
+              </p>
+              <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.04em] text-navy sm:text-5xl">
+                From the work you do to the skills you can show.
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slatebody">
+                One place to organize practical experience, add helpful context and share a
+                clearer picture of your abilities.
               </p>
             </div>
 
-            <div className="mt-12 grid gap-8 border-t border-navy/15 pt-7 md:grid-cols-3 md:gap-7">
-              {workflow.map((item) => (
-                <article key={item.step} className="relative">
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-bold tracking-[0.16em] text-teal-700">{item.step}</span>
-                    <span className="h-px flex-1 bg-navy/10 md:hidden" />
-                    <item.icon size={21} className="text-teal" aria-hidden="true" />
+            <div className="mt-12 grid gap-8 border-t border-navy/15 pt-7 md:grid-cols-3 md:gap-8">
+              {workflow.map(({ icon: Icon, title, text }, index) => (
+                <article key={title} className="landing-step">
+                  <div className="flex items-center gap-3">
+                    <span className="landing-step__number">0{index + 1}</span>
+                    <span className="h-px flex-1 bg-navy/10" />
+                    <Icon size={22} className="text-teal-700" aria-hidden="true" />
                   </div>
-                  <h3 className="mt-6 text-xl font-bold text-navy sm:text-2xl">{item.title}</h3>
-                  <p className="mt-3 max-w-sm leading-7 text-slatebody">{item.text}</p>
+                  <h3 className="mt-6 text-xl font-semibold tracking-tight text-navy sm:text-2xl">{title}</h3>
+                  <p className="mt-3 leading-7 text-slatebody">{text}</p>
                 </article>
               ))}
             </div>
           </PageContainer>
         </section>
 
-        <section id="features" className="bg-warm">
-          <PageContainer className="grid gap-10 py-16 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:py-24">
+        <section id="features" className="landing-product-section">
+          <PageContainer className="grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:py-24">
             <div className="max-w-lg">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">What Joby AI provides</p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight text-navy sm:text-5xl">
-                A fuller picture of what you can do.
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">
+                A fuller picture
+              </p>
+              <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.04em] text-navy sm:text-5xl">
+                Focus on your skills. We’ll help put them in context.
               </h2>
               <p className="mt-5 text-lg leading-8 text-slatebody">
-                Useful experience can be hard to communicate when formal records are incomplete.
-                Joby AI gives practical evidence a clear place in your story.
+                Your experience can come from projects, independent learning, community work
+                or a career path that doesn’t fit neatly on a résumé.
               </p>
               <a
                 href="#trust"
@@ -289,16 +220,36 @@ export function LandingPage() {
                 <ArrowRight size={17} aria-hidden="true" />
               </a>
             </div>
+            <ScreenshotPlaceholder label="Evidence and skills" />
+          </PageContainer>
+        </section>
 
-            <div className="divide-y divide-navy/10 border-y border-navy/10">
-              {features.map((feature) => (
-                <article key={feature.title} className="flex gap-4 py-5 sm:gap-6 sm:py-6">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white text-teal">
-                    <feature.icon size={21} aria-hidden="true" />
+        <section className="bg-white">
+          <PageContainer className="py-16 sm:py-20 lg:py-24">
+            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+              <div className="max-w-2xl">
+                <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal-700">
+                  Built around your work
+                </p>
+                <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.04em] text-navy sm:text-5xl">
+                  The pieces that make your experience clear.
+                </h2>
+              </div>
+              <p className="max-w-md leading-7 text-slatebody">
+                Bring together the details that help someone understand not just what you know,
+                but how you have put it into practice.
+              </p>
+            </div>
+
+            <div className="mt-12 grid gap-4 sm:grid-cols-2">
+              {capabilities.map(({ icon: Icon, title, text }) => (
+                <article key={title} className="landing-capability">
+                  <span className="landing-capability__icon">
+                    <Icon size={22} aria-hidden="true" />
                   </span>
                   <div>
-                    <h3 className="text-lg font-bold text-navy">{feature.title}</h3>
-                    <p className="mt-1.5 max-w-xl leading-7 text-slatebody">{feature.text}</p>
+                    <h3 className="text-lg font-semibold text-navy">{title}</h3>
+                    <p className="mt-2 leading-7 text-slatebody">{text}</p>
                   </div>
                 </article>
               ))}
@@ -306,42 +257,43 @@ export function LandingPage() {
           </PageContainer>
         </section>
 
-        <section id="trust" className="bg-navy text-white">
+        <section id="trust" className="landing-trust-section">
           <PageContainer className="grid gap-10 py-16 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16 lg:py-24">
             <div>
-              <span className="mb-5 grid h-12 w-12 place-items-center rounded-xl bg-white/10 text-teal">
-                <ShieldCheck size={23} aria-hidden="true" />
+              <span className="landing-trust-section__icon">
+                <ShieldCheck size={24} aria-hidden="true" />
               </span>
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-teal">Trust and transparency</p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">
-                AI assistance, without pretending to certify.
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-coral">
+                Trust and transparency
+              </p>
+              <h2 className="mt-4 text-4xl font-semibold leading-tight tracking-[-0.04em] text-white sm:text-5xl">
+                Useful signals. Honest about what they mean.
               </h2>
               <p className="mt-5 max-w-xl leading-8 text-white/75">
-                AI can help organize possible skills and review work against a fixed rubric.
-                Suggestions remain subject to your review, and assessment feedback is not an
-                official qualification.
+                AI can help organize possible skills and review work against a rubric. It does
+                not certify your abilities, and the source of each signal stays visible.
               </p>
               <ul className="mt-7 space-y-3">
                 {[
                   'You review every AI-suggested skill.',
                   'Evidence and assessment status remain separate.',
-                  'A public passport only shows explicitly shared profile fields.',
+                  'Public passport details are shared only with your choice.',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm font-medium text-white/90">
-                    <Check size={18} className="mt-0.5 shrink-0 text-teal" aria-hidden="true" />
+                    <Check size={18} className="mt-0.5 shrink-0 text-coral" aria-hidden="true" />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="rounded-2xl bg-white p-5 text-navy sm:p-8">
+            <div className="landing-status-card">
               <div className="mb-5 flex items-center gap-3 border-b border-navy/10 pb-5">
-                <span className="grid h-10 w-10 place-items-center rounded-lg bg-teal/10 text-teal">
-                  <FileCheck2 size={20} aria-hidden="true" />
+                <span className="grid h-10 w-10 place-items-center rounded-lg bg-teal/10 text-teal-700">
+                  <FileCheck2 size={21} aria-hidden="true" />
                 </span>
                 <div>
-                  <h3 className="font-bold">What each status means</h3>
+                  <h3 className="font-semibold text-navy">What each status means</h3>
                   <p className="mt-0.5 text-sm text-slatebody">The source behind a skill stays visible.</p>
                 </div>
               </div>
@@ -359,17 +311,19 @@ export function LandingPage() {
           </PageContainer>
         </section>
 
-        <section id="get-started" className="bg-teal/10">
-          <PageContainer className="flex flex-col items-start justify-between gap-7 py-12 sm:py-16 md:flex-row md:items-center">
+        <section id="get-started" className="landing-cta-section">
+          <PageContainer className="flex flex-col items-start justify-between gap-7 py-14 sm:py-16 md:flex-row md:items-center">
             <div>
-              <BriefcaseBusiness className="text-teal" size={25} aria-hidden="true" />
-              <h2 className="mt-4 text-3xl font-bold text-navy sm:text-4xl">Put your work in context.</h2>
-              <p className="mt-2 max-w-xl leading-7 text-slatebody">
-                Create an evidence-backed profile that makes what you can do easier to understand.
+              <BriefcaseBusiness className="text-teal-700" size={27} aria-hidden="true" />
+              <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-navy sm:text-5xl">
+                Let your work speak for itself.
+              </h2>
+              <p className="mt-3 max-w-xl text-lg leading-8 text-slatebody">
+                Start building a profile that shows the skills behind your experience.
               </p>
             </div>
             <ButtonLink href="/signup" size="lg" variant="primary" className="shrink-0">
-              Create your Skills Passport
+              Get started
               <ArrowRight size={18} aria-hidden="true" />
             </ButtonLink>
           </PageContainer>

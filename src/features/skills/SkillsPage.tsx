@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { LoaderCircle, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { LoaderCircle, Pencil, Plus, Trash2, X } from '../../components/ui/icons'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { Card } from '../../components/ui/Card'

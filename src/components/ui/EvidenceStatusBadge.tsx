@@ -8,7 +8,7 @@ type EvidenceStatusBadgeProps = {
 }
 
 const dotStyles = {
-  'Self-reported': 'bg-slate-400',
+  'Self-reported': 'bg-slatebody',
   'Evidence submitted': 'bg-teal',
   'AI-assisted assessment': 'bg-navy',
   'Human reviewed': 'bg-success',
@@ -17,7 +17,7 @@ const dotStyles = {
 
 export function EvidenceStatusBadge({ label }: EvidenceStatusBadgeProps) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-navy/10 bg-white px-3 py-1.5 text-xs font-semibold text-navy">
+    <span className="inline-flex items-center gap-2 rounded-md border border-stone bg-white px-2.5 py-1 text-xs font-medium text-navy">
       <span className={`h-2 w-2 rounded-full ${dotStyles[label]}`} aria-hidden="true" />
       {label}
     </span>

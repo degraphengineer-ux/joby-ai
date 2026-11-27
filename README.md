@@ -23,13 +23,17 @@ Joby AI is an evidence-first skills profile and practical assessment platform. I
 
 ## Technology and architecture
 
-- **Frontend:** React, TypeScript, Vite, Tailwind CSS, React Router and Lucide.
+- **Frontend:** React, TypeScript, Vite, Tailwind CSS, React Router, Inter and Remix Icon.
 - **Backend:** Supabase Auth, PostgreSQL, Row Level Security, private Storage and JWT-protected Edge Functions.
 - **AI:** Gemini, called only from Supabase Edge Functions.
 - **Validation:** Zod for forms and model output.
 - **Hosting target:** Vercel static deployment; connect the repository to a Vercel project as described below.
 
 The browser uses the Supabase publishable/anon key with RLS. Sensitive AI and service-role operations remain in Supabase Functions. Public passport data is returned through a server-side allowlist; private files and submissions are excluded.
+
+## Design system
+
+The shared tokens in `src/styles/globals.css` and `tailwind.config.ts` use Paper (`#F6F4F1`), Stone (`#E4DED2`), Coral (`#F95C4B`) and black, with semantic status colors for feedback. Inter is the application typeface and Remix Icon is used for interface icons. Shared controls and page headings apply across the public site, authentication, and authenticated workspace; the workspace uses a responsive sidebar that becomes a mobile navigation drawer.
 
 ## Requirements
 

@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowLeft, CheckCircle2, LoaderCircle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, CheckCircle2, LoaderCircle, RefreshCw } from '../../components/ui/icons'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'

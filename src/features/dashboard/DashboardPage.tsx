@@ -1,4 +1,4 @@
-import { ArrowRight, Award, BriefcaseBusiness, FileText, Plus, Sparkles } from 'lucide-react'
+import { ArrowRight, Award, BriefcaseBusiness, FileText, Plus, Sparkles } from '../../components/ui/icons'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'
@@ -119,7 +119,7 @@ export function DashboardPage() {
                   Add a headline, short bio, target role and at least one skill to give your profile helpful context.
                 </p>
               </div>
-              <Link to="/profile" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-navy/15 px-4 text-sm font-semibold text-navy hover:border-teal/50 hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal">
+              <Link to="/onboarding" className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-navy/15 px-4 text-sm font-semibold text-navy hover:border-teal/50 hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal">
                 Edit profile
                 <ArrowRight size={17} aria-hidden="true" />
               </Link>
@@ -165,20 +165,25 @@ export function DashboardPage() {
               {data.activities.length ? (
                 <ul className="divide-y divide-navy/10 rounded-xl border border-navy/10 bg-white">
                   {data.activities.map((activity) => (
-                    <li key={activity.id} className="flex items-center justify-between gap-4 px-4 py-4 sm:px-5">
-                      <div className="min-w-0">
-                        <Link to={activity.href} className="break-words text-sm font-semibold text-navy hover:text-teal-700">
-                          {activity.label}
-                        </Link>
-                        <p className="mt-1 text-xs text-slatebody">
-                          {new Date(activity.createdAt).toLocaleDateString(undefined, {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </p>
-                      </div>
-                      <ArrowRight size={16} className="shrink-0 text-slatebody" aria-hidden="true" />
+                    <li key={activity.id}>
+                      <Link
+                        to={activity.href}
+                        className="flex min-h-[4.75rem] min-w-0 items-center justify-between gap-4 rounded-md px-4 py-4 hover:bg-warm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal sm:px-5"
+                      >
+                        <span className="min-w-0">
+                          <span className="block break-words text-sm font-semibold text-navy hover:text-teal-700">
+                            {activity.label}
+                          </span>
+                          <span className="mt-1 block text-xs text-slatebody">
+                            {new Date(activity.createdAt).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </span>
+                        </span>
+                        <ArrowRight size={16} className="shrink-0 text-slatebody" aria-hidden="true" />
+                      </Link>
                     </li>
                   ))}
                 </ul>

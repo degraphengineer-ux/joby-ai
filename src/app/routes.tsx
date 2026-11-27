@@ -5,7 +5,6 @@ import { ProtectedRoute } from '../features/auth/ProtectedRoute'
 import { PublicOnlyRoute } from '../features/auth/PublicOnlyRoute'
 import { AuthenticatedLayout } from '../components/layout/AuthenticatedLayout'
 import { OnboardingPage } from '../features/profile/OnboardingPage'
-import { ProfilePage } from '../features/profile/ProfilePage'
 import { SkillsPage } from '../features/skills/SkillsPage'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { AssessmentDetailPage } from '../features/assessments/AssessmentDetailPage'
@@ -17,8 +16,6 @@ import { SkillExtractionPage } from '../features/extraction/SkillExtractionPage'
 import { PassportPage } from '../features/passport/PassportPage'
 import { PublicPassportPage } from '../features/passport/PublicPassportPage'
 import { SettingsPage } from '../features/settings/SettingsPage'
-import { ReviewerDashboardPage } from '../features/reviewer/ReviewerDashboardPage'
-import { ImpactDashboardPage } from '../features/impact/ImpactDashboardPage'
 
 export function AppRoutes() {
   return (
@@ -50,7 +47,6 @@ export function AppRoutes() {
       >
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/skills" element={<SkillsPage />} />
         <Route path="/evidence" element={<EvidencePage />} />
         <Route path="/evidence/analyze" element={<SkillExtractionPage />} />
@@ -60,8 +56,6 @@ export function AppRoutes() {
         <Route path="/assessments/:assessmentId" element={<AssessmentDetailPage />} />
         <Route path="/passport" element={<PassportPage />} />
         <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/reviewer" element={<ReviewerDashboardPage />} />
-        <Route path="/impact" element={<ImpactDashboardPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

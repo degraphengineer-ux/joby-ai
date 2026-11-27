@@ -10,10 +10,10 @@ export function PageHeading({
   action?: ReactNode
 }) {
   return (
-    <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-navy">{title}</h1>
-        {description && <p className="mt-2 max-w-2xl leading-7 text-slatebody">{description}</p>}
+        <h1 className="text-2xl font-semibold tracking-tight text-navy sm:text-[1.75rem]">{title}</h1>
+        {description && <p className="mt-1.5 max-w-2xl text-sm leading-6 text-slatebody">{description}</p>}
       </div>
       {action}
     </div>

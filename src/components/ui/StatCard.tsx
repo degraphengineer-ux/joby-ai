@@ -15,8 +15,8 @@ export function StatCard({ label, value, href, icon }: StatCardProps) {
       to={href}
       className="group rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
     >
-      <Card className="flex h-full items-center gap-4 p-5 transition-colors group-hover:border-teal/30">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-teal/10 text-teal">
+      <Card className="flex h-full items-center gap-4 p-5 transition-colors group-hover:border-coral/50">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-teal-50 text-teal-800">
           {icon}
         </span>
         <span className="min-w-0">

@@ -1,4 +1,4 @@
-import { AlertTriangle, ExternalLink, Printer, Send } from 'lucide-react'
+import { AlertTriangle, ExternalLink, Printer, Send } from '../../components/ui/icons'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'

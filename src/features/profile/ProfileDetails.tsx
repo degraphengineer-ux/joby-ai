@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Check, LoaderCircle, Pencil, Save, X } from 'lucide-react'
+import { Check, LoaderCircle, Pencil, Save, X } from '../../components/ui/icons'
 import { Button } from '../../components/ui/Button'
 import { ErrorState, LoadingState, Toast } from '../../components/ui/Feedback'
 import { ProfileFields } from './ProfileFields'

@@ -12,11 +12,11 @@ type ButtonLinkProps = SharedProps & AnchorHTMLAttributes<HTMLAnchorElement>
 
 const styles = {
   primary:
-    'bg-navy text-white hover:bg-ink focus-visible:outline-navy',
+    'bg-coral text-navy hover:bg-teal-600 focus-visible:outline-coral',
   secondary:
-    'border border-navy/15 bg-white text-navy hover:border-teal/50 hover:text-teal-700',
+    'border border-stone bg-white text-navy hover:border-coral hover:bg-warm',
   ghost:
-    'text-navy hover:bg-navy/5 focus-visible:outline-navy',
+    'text-navy hover:bg-stone/40 focus-visible:outline-coral',
 }
 
 function classes({
@@ -25,7 +25,7 @@ function classes({
   className = '',
 }: SharedProps) {
   return [
-    'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors',
+    'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
     'disabled:cursor-not-allowed disabled:opacity-60',
     size === 'lg' ? 'min-h-12 px-5 text-base' : 'min-h-10 px-4 text-sm',

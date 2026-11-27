@@ -1,4 +1,4 @@
-import { ArrowRight, Plus, Search } from 'lucide-react'
+import { ArrowRight, Plus, Search } from '../../components/ui/icons'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'

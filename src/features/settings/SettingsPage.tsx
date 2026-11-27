@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, KeyRound, LoaderCircle, LogOut, ShieldCheck, UserRound } from 'lucide-react'
+import { Eye, EyeOff, KeyRound, LoaderCircle, LogOut, ShieldCheck, UserRound } from '../../components/ui/icons'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { ErrorState, LoadingState, Toast } from '../../components/ui/Feedback'

@@ -1,4 +1,4 @@
-import { Check, ExternalLink, FileText, LoaderCircle } from 'lucide-react'
+import { Check, ExternalLink, FileText, LoaderCircle } from '../../components/ui/icons'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'

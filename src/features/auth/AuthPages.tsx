@@ -1,4 +1,4 @@
-import { Eye, EyeOff, LoaderCircle } from 'lucide-react'
+import { Eye, EyeOff, LoaderCircle } from '../../components/ui/icons'
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'

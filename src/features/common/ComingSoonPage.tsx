@@ -1,4 +1,4 @@
-import { ArrowRight, FileText } from 'lucide-react'
+import { ArrowRight, FileText } from '../../components/ui/icons'
 import { Link } from 'react-router-dom'
 import { Card } from '../../components/ui/Card'
 import { PageContainer } from '../../components/layout/PageContainer'

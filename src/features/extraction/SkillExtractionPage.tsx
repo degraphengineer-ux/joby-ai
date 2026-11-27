@@ -1,4 +1,4 @@
-import { AlertTriangle, Check, LoaderCircle, RotateCcw, Sparkles, X } from 'lucide-react'
+import { AlertTriangle, Check, LoaderCircle, RotateCcw, Sparkles, X } from '../../components/ui/icons'
 import { useEffect, useId, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'

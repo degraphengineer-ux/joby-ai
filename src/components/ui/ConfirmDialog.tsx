@@ -1,4 +1,4 @@
-import { LoaderCircle } from 'lucide-react'
+import { LoaderCircle } from './icons'
 import { useEffect, useRef } from 'react'
 import { Button } from './Button'
 

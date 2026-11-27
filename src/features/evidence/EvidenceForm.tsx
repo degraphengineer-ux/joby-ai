@@ -1,4 +1,4 @@
-import { LoaderCircle, UploadCloud } from 'lucide-react'
+import { LoaderCircle, UploadCloud } from '../../components/ui/icons'
 import { useState, type FormEvent } from 'react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
