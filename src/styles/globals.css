@@ -375,6 +375,16 @@ select:focus-visible {
   color: rgb(var(--ink));
 }
 
+.app-sidebar__link:focus-visible,
+.app-sidebar__account-action:focus-visible {
+  outline: 2px solid rgb(var(--coral));
+  outline-offset: 2px;
+}
+
+.app-sidebar__account-action:active {
+  background: rgb(var(--paper));
+}
+
 .app-sidebar__link[aria-current="page"] {
   background: #fff0ed;
   color: #9f3027;
@@ -503,6 +513,22 @@ select:focus-visible {
   background: #fff;
   padding: 1rem;
   box-shadow: 0 16px 36px rgb(0 0 0 / 0.16);
+  animation: app-dropdown-enter 140ms ease-out both;
+}
+
+@keyframes app-dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.app-sidebar__account-action {
+  transition: background-color 140ms ease, color 140ms ease;
 }
 
 .app-sidebar__account-info {
@@ -598,6 +624,66 @@ select:focus-visible {
   padding: 1rem 2rem;
   color: rgb(var(--text-secondary));
   font-size: 0.75rem;
+}
+
+.app-select__control {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.app-select {
+  display: block;
+  min-height: 2.75rem;
+  width: 100%;
+  appearance: none;
+  border: 1px solid rgb(var(--ink) / 0.15);
+  border-radius: 0.625rem;
+  background-color: #fff;
+  padding: 0 2.75rem 0 0.875rem;
+  color: rgb(var(--ink));
+  font: inherit;
+  line-height: 1.4;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.app-select:hover:not(:disabled) {
+  border-color: rgb(var(--coral) / 0.6);
+  background-color: #fffdfc;
+}
+
+.app-select:active:not(:disabled) {
+  background-color: rgb(var(--paper));
+}
+
+.app-select:focus-visible {
+  border-color: rgb(var(--coral));
+  outline: 0;
+  box-shadow: 0 0 0 4px rgb(var(--coral) / 0.12);
+}
+
+.app-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.app-select__indicator {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  pointer-events: none;
+  color: rgb(var(--text-secondary));
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.app-select option {
+  background: #fff;
+  color: rgb(var(--ink));
+}
+
+.app-select option:checked {
+  background: #fff0ed;
+  color: #9f3027;
 }
 
 .app-mobile-menu {
@@ -729,6 +815,17 @@ select:focus-visible {
     inset: 0;
     border: 0;
     background: rgb(0 0 0 / 0.35);
+  }
+
+  #mobile-navigation {
+    animation: app-dropdown-enter 140ms ease-out both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-sidebar__account-details,
+  #mobile-navigation {
+    animation: none;
   }
 }
 

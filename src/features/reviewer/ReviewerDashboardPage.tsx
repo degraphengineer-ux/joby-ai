@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
+import { SelectField } from '../../components/ui/SelectField'
 import { EmptyState, ErrorState, LoadingState, SuccessState } from '../../components/ui/Feedback'
 import { PageContainer } from '../../components/layout/PageContainer'
 import { PageHeading } from '../../components/layout/PageHeading'
@@ -189,21 +190,18 @@ function ReviewerEvidenceCard({
         </fieldset>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor={`review-decision-${evidence.id}`} className="block text-sm font-semibold text-navy">
-              Decision
-            </label>
-            <select
+            <SelectField
+              label="Decision"
               id={`review-decision-${evidence.id}`}
               required
               value={decision}
               onChange={(event) => setDecision(event.target.value as ReviewDecision | '')}
-              className="mt-2 min-h-11 w-full rounded-lg border border-navy/15 bg-white px-3 text-base text-navy"
             >
               <option value="">Choose a decision</option>
               <option value="accepted">Accepted</option>
               <option value="needs_changes">Needs changes</option>
               <option value="rejected">Rejected</option>
-            </select>
+            </SelectField>
           </div>
           <div>
             <label htmlFor={`review-notes-${evidence.id}`} className="block text-sm font-semibold text-navy">

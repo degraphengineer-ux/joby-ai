@@ -50,6 +50,19 @@ npx supabase functions deploy extract-skills --remote=<project-ref> --use-api
 
 The rate-limit RPC permits five requests per authenticated user per UTC hour. Requests contain at most 12,000 characters, and the function times out Gemini calls after 25 seconds. The frontend lets users review source text, edit, accept, or reject each suggestion; accepted skills remain AI suggestions and are not represented as verified. Minimal operational logs record the user, operation, status, model and a bounded error code only. Prompts, source text, AI output, tokens and credentials are not logged.
 
+## Joby AI assistant
+
+The authenticated `/ai` page sends text chat messages to the `joby-ai` Edge Function. The function validates the user JWT, limits each user to 20 AI requests per hour (shared with quiz generation), bounds message and response sizes, and calls Gemini using the server-side `GEMINI_API_KEY`. Recent conversation turns are kept in page memory only; Joby does not store transcripts. Profile and registered-skill context is opt-in and fetched server-side only for the signed-in user. It is included only when the explicit per-message consent is enabled. Users should not submit secrets or sensitive personal information. Files and external URLs are not retrieved; project/code feedback only covers text pasted into the chat. The AI response is advisory and not a qualification or guaranteed career recommendation.
+
+Apply the rate-limit migration and deploy the function after confirming the project:
+
+```powershell
+npx supabase db push --remote
+npx supabase functions deploy joby-ai ai-quiz --remote=<project-ref> --use-api
+```
+
+The `ai-quiz` function uses the same server-only `GEMINI_API_KEY` and optional `GEMINI_MODEL`. It verifies the selected skill belongs to the caller, requires explicit consent before sending the selected skill name/category/self-reported level, generates five difficulty-calibrated questions, and stores the answer key in a table inaccessible to ordinary client roles. The server grades submitted answers, stores per-user quiz history, and only returns explanations after submission. Recent question stems are excluded to reduce repeats. AI-generated content can still be inaccurate; quiz results are advisory practice, not standardized exams. Never expose provider credentials to the browser; provider errors are surfaced rather than replaced with simulated responses.
+
 ## Reviewer access
 
 The `/reviewer` screen calls the JWT-protected `review-evidence` Edge Function. Each evidence item is excluded unless its owner enabled reviewer consent. Reviewer authorization is stored in `public.authorized_reviewers`, which has RLS enabled and no client grants. Only an administrator using a trusted database channel should grant access:
@@ -72,7 +85,7 @@ Phase 11 seeds fixed-rubric `data_analysis` and `customer_support` categories. T
 
 The private `/passport` page can export the current preview to PDF in the browser. The generated document includes private profile/evidence summaries and assessment feedback shown on that preview, but omits storage paths, uploaded file contents, reviewer notes and account identifiers. The candidate must treat the exported PDF as private.
 
-Run `supabase/tests/phase_11_integrations_test.sql` in a dedicated test project after applying all migrations. It checks category seeds, aggregate correctness, reviewer privileges, RLS and the non-content AI log schema. Frontend and parsing tests run with `npm test`; the Edge PDF.js runtime test runs with `npx deno@2.1.4 test --no-lock tests/phase11/pdfJsRuntime_test.ts`. Never run SQL integration checks against production data.
+Run `supabase/tests/phase_11_integrations_test.sql` in a dedicated test project after applying all migrations. It checks category seeds, aggregate correctness, reviewer privileges, RLS and the non-content AI log schema. Run `supabase/tests/ai_quiz_security_test.sql` after the new AI migrations to verify answer-key isolation and server-only rate-limit access. Frontend and scoring tests run with `npm test`; Edge Functions can be checked with `npx deno@2.1.4 check --no-lock supabase/functions/joby-ai/index.ts supabase/functions/ai-quiz/index.ts supabase/functions/assess-submission/index.ts`. The PDF.js runtime test runs with `npx deno@2.1.4 test --no-lock tests/phase11/pdfJsRuntime_test.ts`. Never run SQL integration checks against production data.
 
 ## Skills Passport and public sharing
 
@@ -103,6 +116,8 @@ npx supabase functions deploy assess-submission --remote=<project-ref> --use-api
 ```
 
 The migration adds the expected deliverable, safe attempt-processing state, failed-attempt retry support, and a server-only five-per-hour rate limiter. The function preserves submissions on model or database errors, prevents concurrent duplicate processing, and marks output as AI-assisted rather than certification.
+
+Assessment submissions now offer a separate, unchecked-by-default consent to include the owner's registered skills and self-reported levels when generating improvement recommendations. The additive consent migration must be applied before deploying the updated `assess-submission` function. Skills are read server-side through the authenticated user's own RLS context; no skill data is sent when consent is off. Rubric scoring is still based only on submission evidence, and proficiency remains self-reported.
 
 ## Live RLS testing
 

@@ -10,6 +10,7 @@ import {
   SidebarLayoutFilled,
   SettingsFilled,
   SkillsFilled,
+  SparklesFilled,
   X,
   type IconComponent,
 } from '../ui/icons'
@@ -25,6 +26,7 @@ import { ensureProfileExists, initialProfileName } from '../../features/profile/
 
 const navigation: { to: string; label: string; icon: IconComponent }[] = [
   { to: '/dashboard', label: 'Overview', icon: DashboardFilled },
+  { to: '/ai', label: 'Joby AI', icon: SparklesFilled },
   { to: '/skills', label: 'Skills', icon: SkillsFilled },
   { to: '/evidence', label: 'Evidence', icon: EvidenceFilled },
   { to: '/assessments', label: 'Assessments', icon: AssessmentsFilled },

@@ -12,7 +12,7 @@ import {
 const assessmentColumns =
   'id,title,category,description,instructions,expected_deliverable,rubric,difficulty,is_active'
 const attemptColumns =
-  'id,assessment_id,user_id,submission_text,submission_url,status,total_score,feedback,assessment_method,submitted_at,completed_at,processing_started_at,created_at'
+  'id,assessment_id,user_id,submission_text,submission_url,status,total_score,feedback,assessment_method,submitted_at,completed_at,processing_started_at,ai_skill_context_consent,created_at'
 
 export class AssessmentEvaluationError extends Error {
   constructor(
@@ -103,6 +103,7 @@ export async function saveAssessmentSubmission(
   userId: string,
   attemptId: string,
   input: AssessmentSubmission,
+  includeSkillContext: boolean,
 ): Promise<AssessmentAttempt> {
   const parsed = assessmentSubmissionSchema.safeParse(input)
   if (!parsed.success) {
@@ -114,6 +115,7 @@ export async function saveAssessmentSubmission(
     .update({
       submission_text: parsed.data.submission_text,
       submission_url: parsed.data.submission_url || null,
+      ai_skill_context_consent: includeSkillContext,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
     })

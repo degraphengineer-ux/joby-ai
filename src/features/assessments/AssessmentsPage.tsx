@@ -4,15 +4,18 @@ import { Link } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
+import { SelectField } from '../../components/ui/SelectField'
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/Feedback'
 import { PageContainer } from '../../components/layout/PageContainer'
 import { PageHeading } from '../../components/layout/PageHeading'
 import { displayDatabaseError } from '../../lib/displayErrors'
 import type { Assessment } from './assessmentSchema'
 import { listActiveAssessments } from './assessmentsService'
+import { AIQuizSection } from './AIQuizSection'
 
 export function AssessmentsPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([])
+  const [difficultyFilter, setDifficultyFilter] = useState<'all' | Assessment['difficulty']>('all')
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
@@ -44,13 +47,17 @@ export function AssessmentsPage() {
       setIsLoading(false)
     }
   }
+  const visibleAssessments = assessments.filter((assessment) =>
+    difficultyFilter === 'all' || assessment.difficulty === difficultyFilter,
+  )
 
   return (
     <PageContainer className="py-8 sm:py-12">
       <PageHeading
         title="Practical assessments"
-        description="Explore structured tasks with clear instructions and fixed criteria. Starting a task saves an attempt to your account."
+        description="Explore structured tasks by difficulty. Each rubric is fixed; results and personalized feedback are saved to your account."
       />
+      <AIQuizSection />
       {isLoading ? (
         <LoadingState label="Loading active assessments..." />
       ) : loadError ? (
@@ -63,33 +70,53 @@ export function AssessmentsPage() {
           <p>Active assessment definitions will appear here when they are published.</p>
         </EmptyState>
       ) : (
-        <ul className="grid gap-5 lg:grid-cols-2">
-          {assessments.map((assessment) => (
-            <li key={assessment.id}>
-              <Card as="article" className="flex h-full flex-col p-5 shadow-card sm:p-6">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone="teal">{assessment.difficulty}</Badge>
-                  <span className="text-xs font-semibold uppercase tracking-wide text-slatebody">
-                    {assessment.category.replace(/_/g, ' ')}
-                  </span>
-                </div>
-                <h2 className="mt-4 text-xl font-bold text-navy">{assessment.title}</h2>
-                <p className="mt-2 flex-1 text-sm leading-6 text-slatebody">{assessment.description}</p>
-                <p className="mt-4 text-xs leading-5 text-slatebody">
-                  <span className="font-bold text-navy">Expected deliverable:</span>{' '}
-                  {assessment.expected_deliverable}
-                </p>
-                <Link
-                  to={`/assessments/${assessment.id}`}
-                  className="mt-5 inline-flex min-h-11 items-center gap-2 self-start rounded-lg border border-navy/15 px-4 text-sm font-bold text-navy hover:border-teal/50 hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
-                >
-                  Review task and rubric
-                  <ArrowRight size={17} aria-hidden="true" />
-                </Link>
-              </Card>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div className="mb-5 max-w-xs">
+            <SelectField
+              label="Difficulty"
+              value={difficultyFilter}
+              onChange={(event) => setDifficultyFilter(event.target.value as 'all' | Assessment['difficulty'])}
+            >
+              <option value="all">All difficulties</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </SelectField>
+          </div>
+          {visibleAssessments.length === 0 ? (
+            <EmptyState title="No assessments at this difficulty">
+              <p>Choose another difficulty to see available assessments.</p>
+            </EmptyState>
+          ) : (
+            <ul className="grid gap-5 lg:grid-cols-2">
+              {visibleAssessments.map((assessment) => (
+                <li key={assessment.id}>
+                  <Card as="article" className="flex h-full flex-col p-5 shadow-card sm:p-6">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge tone="teal">{assessment.difficulty}</Badge>
+                      <span className="text-xs font-semibold uppercase tracking-wide text-slatebody">
+                        {assessment.category.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    <h2 className="mt-4 text-xl font-bold text-navy">{assessment.title}</h2>
+                    <p className="mt-2 flex-1 text-sm leading-6 text-slatebody">{assessment.description}</p>
+                    <p className="mt-4 text-xs leading-5 text-slatebody">
+                      <span className="font-bold text-navy">Expected deliverable:</span>{' '}
+                      {assessment.expected_deliverable}
+                    </p>
+                    <Link
+                      to={`/assessments/${assessment.id}`}
+                      className="mt-5 inline-flex min-h-11 items-center gap-2 self-start rounded-lg border border-navy/15 px-4 text-sm font-bold text-navy hover:border-teal/50 hover:text-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                    >
+                      Review task and rubric
+                      <ArrowRight size={17} aria-hidden="true" />
+                    </Link>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
       <p className="mt-7 text-sm leading-6 text-slatebody">
         An assessment is a structured exercise, not a certificate. Results are advisory and must not be presented as an official qualification.

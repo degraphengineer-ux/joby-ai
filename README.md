@@ -82,7 +82,7 @@ Focused feature tests run with `npm test`. SQL integration checks are in `supaba
 |---|---|---|
 | `VITE_SUPABASE_URL` | `.env.local` and Vercel | Supabase project URL used by the browser |
 | `VITE_SUPABASE_ANON_KEY` | `.env.local` and Vercel | Browser-safe Supabase publishable/anon key; database access is constrained by RLS |
-| `GEMINI_API_KEY` | Supabase Edge Function secrets only | Gemini access for extraction and assessment |
+| `GEMINI_API_KEY` | Supabase Edge Function secrets only | Gemini access for Joby AI, extraction and assessment |
 | `GEMINI_MODEL` | Optional Supabase Edge Function secret | Overrides the server-side model default |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase server runtime only | Privileged function access; never put it in Vercel or a `VITE_` variable |
 
@@ -111,10 +111,12 @@ npx supabase db push --remote
 Set `GEMINI_API_KEY` as a Supabase Function secret. Deploy the functions without disabling JWT verification:
 
 ```powershell
-npx supabase functions deploy evidence-upload extract-skills assess-submission review-evidence --remote=<project-ref> --use-api
+npx supabase functions deploy evidence-upload extract-skills assess-submission joby-ai ai-quiz review-evidence --remote=<project-ref> --use-api
 ```
 
 The `--use-api` option avoids a local Docker requirement. Do not use `--no-verify-jwt` or `--prune` for routine deployment.
+
+The Joby AI page uses the authenticated `joby-ai` Edge Function. It supports text conversations only (including pasted project descriptions or code), keeps recent context in page memory, and does not persist chat transcripts. Profile context is opt-in per message and is loaded server-side only for the authenticated user. Personalized skill quizzes use `ai-quiz`; the function stores answer keys privately, grades on the server, and shows correct answers and explanations after submission. Quiz history and results are returned only to the authenticated owner. Apply the AI and quiz migrations before deploying the functions. Assessment skill context is separately opt-in and saved with the private assessment attempt; when enabled, the evaluator reads only that user's registered skills under their authenticated policy. All AI features use server-side Gemini access, never a browser key.
 
 The Phase 11 migration adds reviewer consent, server-only reviewer authorization, aggregate impact metrics, review-material audit fields, minimal AI logs and the two additional assessment categories. Apply the migration before deploying the updated `extract-skills`, `assess-submission` and `review-evidence` functions. To authorize a reviewer, an administrator must insert that existing Auth user’s UUID into `public.authorized_reviewers` using the Supabase SQL editor or another trusted administrative channel. The reviewer dashboard is not accessible based on sign-in alone.
 

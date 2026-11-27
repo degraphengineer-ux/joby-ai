@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
+import { SelectField } from '../../components/ui/SelectField'
 import { EmptyState, ErrorState, LoadingState, SuccessState } from '../../components/ui/Feedback'
 import { PageContainer } from '../../components/layout/PageContainer'
 import { PageHeading } from '../../components/layout/PageHeading'
@@ -170,17 +171,17 @@ export function EvidencePage() {
               className="min-h-11 w-full rounded-lg border border-navy/15 bg-white pl-10 pr-3.5 text-base text-navy outline-none focus:border-teal focus:ring-4 focus:ring-teal/10"
             />
           </div>
-          <div>
-            <label htmlFor="evidence-filter" className="sr-only">Filter by evidence type</label>
-            <select
+          <div className="sm:w-64">
+            <SelectField
+              label="Filter by evidence type"
+              labelClassName="sr-only"
               id="evidence-filter"
               value={typeFilter}
               onChange={(event) => setTypeFilter(event.target.value as 'all' | EvidenceType)}
-              className="min-h-11 w-full rounded-lg border border-navy/15 bg-white px-3.5 text-base text-navy outline-none focus:border-teal focus:ring-4 focus:ring-teal/10 sm:w-64"
             >
               <option value="all">All evidence types</option>
               {evidenceTypes.map((type) => <option key={type} value={type}>{evidenceTypeLabels[type]}</option>)}
-            </select>
+            </SelectField>
           </div>
         </div>
 

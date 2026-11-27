@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { ErrorState } from '../../components/ui/Feedback'
 import { Input } from '../../components/ui/Input'
+import { SelectField } from '../../components/ui/SelectField'
 import { evidenceSchema, evidenceTypeLabels, evidenceTypes, type EvidenceInput, type EvidenceRecord } from './evidenceSchema'
 import { validateEvidenceFile } from './evidenceFileValidation'
 import type { Skill } from '../skills/skillSchema'
@@ -136,20 +137,17 @@ export function EvidenceForm({
             {fieldErrors.title && <p id="evidence-title-error" className="mt-1 text-sm text-error">{fieldErrors.title}</p>}
           </div>
           <div>
-            <label htmlFor="evidence-type" className="block text-sm font-semibold text-navy">
-              Evidence type
-            </label>
-            <select
+            <SelectField
+              label="Evidence type"
               id="evidence-type"
               name="evidence_type"
               value={draft.evidence_type}
               onChange={(event) => handleTypeChange(event.target.value as EvidenceInput['evidence_type'])}
-              className="mt-2 min-h-11 w-full rounded-lg border border-navy/15 bg-white px-3.5 text-base text-navy outline-none focus:border-teal focus:ring-4 focus:ring-teal/10"
             >
               {evidenceTypes.map((type) => (
                 <option key={type} value={type}>{evidenceTypeLabels[type]}</option>
               ))}
-            </select>
+            </SelectField>
           </div>
         </div>
 

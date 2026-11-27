@@ -16,6 +16,7 @@ import { SkillExtractionPage } from '../features/extraction/SkillExtractionPage'
 import { PassportPage } from '../features/passport/PassportPage'
 import { PublicPassportPage } from '../features/passport/PublicPassportPage'
 import { SettingsPage } from '../features/settings/SettingsPage'
+import { JobyAiPage } from '../features/ai/JobyAiPage'
 
 export function AppRoutes() {
   return (
@@ -47,6 +48,7 @@ export function AppRoutes() {
       >
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/ai" element={<JobyAiPage />} />
         <Route path="/skills" element={<SkillsPage />} />
         <Route path="/evidence" element={<EvidencePage />} />
         <Route path="/evidence/analyze" element={<SkillExtractionPage />} />

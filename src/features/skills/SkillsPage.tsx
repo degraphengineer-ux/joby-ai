@@ -6,6 +6,7 @@ import { Card } from '../../components/ui/Card'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { EmptyState, ErrorState, LoadingState, SuccessState } from '../../components/ui/Feedback'
 import { Input } from '../../components/ui/Input'
+import { SelectField } from '../../components/ui/SelectField'
 import { PageContainer } from '../../components/layout/PageContainer'
 import { PageHeading } from '../../components/layout/PageHeading'
 import { displayDatabaseError } from '../../lib/displayErrors'
@@ -213,10 +214,8 @@ export function SkillsPage() {
                 {fieldErrors.category && <p id="skill-category-error" className="mt-1 text-sm text-error">{fieldErrors.category}</p>}
               </div>
               <div>
-                <label htmlFor="self_reported_level" className="block text-sm font-semibold text-navy">
-                  Self-reported proficiency
-                </label>
-                <select
+                <SelectField
+                  label="Self-reported proficiency"
                   id="self_reported_level"
                   name="self_reported_level"
                   value={draft.self_reported_level}
@@ -224,12 +223,11 @@ export function SkillsPage() {
                     ...current,
                     self_reported_level: event.target.value as SkillInput['self_reported_level'],
                   }))}
-                  className="mt-2 min-h-11 w-full rounded-lg border border-navy/15 bg-white px-3.5 text-base text-navy outline-none focus:border-teal focus:ring-4 focus:ring-teal/10"
                 >
                   {proficiencyLevels.map((level) => (
                     <option key={level} value={level}>{proficiencyLabels[level]}</option>
                   ))}
-                </select>
+                </SelectField>
                 <p className="mt-1 text-xs text-slatebody">This is your self-assessment, not a verified result.</p>
               </div>
               <div className="sm:col-span-2">

@@ -44,6 +44,7 @@ import {
   RiSettings3Fill,
   RiShieldCheckLine,
   RiSparkling2Line,
+  RiSparkling2Fill,
   RiStackLine,
   RiTargetLine,
   RiTaskLine,
@@ -111,3 +112,4 @@ export const PassportFilled = RiVerifiedBadgeFill
 export const SettingsFilled = RiSettings3Fill
 export const SidebarLayoutFilled = RiLayoutRight2Fill
 export const MoreFilled = RiMore2Fill
+export const SparklesFilled = RiSparkling2Fill

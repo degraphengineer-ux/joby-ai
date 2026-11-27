@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { EmptyState, ErrorState, LoadingState, SuccessState } from '../../components/ui/Feedback'
 import { Input } from '../../components/ui/Input'
+import { SelectField } from '../../components/ui/SelectField'
 import { PageContainer } from '../../components/layout/PageContainer'
 import { PageHeading } from '../../components/layout/PageHeading'
 import { displayDatabaseError } from '../../lib/displayErrors'
@@ -252,14 +253,12 @@ export function SkillExtractionPage() {
             </div>
           ) : (
             <div>
-              <label htmlFor="evidence-selection" className="block text-sm font-semibold text-navy">
-              Evidence item
-              </label>
               {isLoadingEvidence ? (
                 <div className="mt-2"><LoadingState label="Loading your evidence..." /></div>
               ) : (
                 <>
-                  <select
+                  <SelectField
+                    label="Evidence item"
                     id="evidence-selection"
                     name="evidence_id"
                     value={selectedEvidenceId}
@@ -269,7 +268,6 @@ export function SkillExtractionPage() {
                       setError(null)
                     }}
                     disabled={Boolean(loadError)}
-                    className="mt-2 min-h-11 w-full rounded-lg border border-navy/15 bg-white px-3.5 text-base text-navy outline-none focus:border-teal focus:ring-4 focus:ring-teal/10"
                   >
                     <option value="">Choose evidence to analyze</option>
                     {evidence.map((item) => (
@@ -281,7 +279,7 @@ export function SkillExtractionPage() {
                         {item.title} — {getEvidenceAnalysisIssue(item) ?? evidenceTypeLabels[item.evidence_type]}
                       </option>
                     ))}
-                  </select>
+                  </SelectField>
                   {availableEvidence.length === 0 && (
                     <p className="mt-2 text-sm text-slatebody">
                       No saved evidence is ready for analysis. Add a sufficiently detailed description, upload a PDF, or save a public GitHub repository.{' '}
@@ -549,23 +547,20 @@ function SuggestionReviewCard({
           )}
 
           <div className="mt-4">
-            <label htmlFor={`${fieldId}-level`} className="block text-sm font-semibold text-navy">
-              Your self-reported proficiency
-            </label>
-            <select
+            <SelectField
+              label="Your self-reported proficiency"
               id={`${fieldId}-level`}
               value={proficiency}
               onChange={(event) => {
                 const level = proficiencyLevels.find((option) => option === event.target.value)
                 if (level) setProficiency(level)
               }}
-              className="mt-2 min-h-11 w-full rounded-lg border border-navy/15 bg-white px-3.5 text-base text-navy outline-none focus:border-teal focus:ring-4 focus:ring-teal/10"
             >
               <option value="unsure">Not sure</option>
               <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
               <option value="advanced">Advanced</option>
-            </select>
+            </SelectField>
             <p className="mt-1 text-xs text-slatebody">AI does not choose or verify your proficiency.</p>
           </div>
         </>

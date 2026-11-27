@@ -50,6 +50,7 @@ export const assessmentAttemptSchema = z.object({
   submitted_at: z.string().nullable(),
   completed_at: z.string().nullable(),
   processing_started_at: z.string().nullable(),
+  ai_skill_context_consent: z.boolean(),
   created_at: z.string(),
 })
 
