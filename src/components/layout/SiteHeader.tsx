@@ -33,7 +33,7 @@ export function SiteHeader() {
         </a>
 
         <nav className="hidden items-center gap-7 lg:flex" aria-label="Primary navigation">
-          <a className="nav-link" href="#features">Platform</a>
+          <a className="nav-link" href="#features">Product</a>
           <a className="nav-link" href="#how-it-works">How it works</a>
           <a className="nav-link" href="#trust">Trust</a>
           <a className="nav-link" href="/login">Sign in</a>
@@ -60,7 +60,7 @@ export function SiteHeader() {
         >
           <PageContainer className="flex flex-col gap-1 py-4">
             {[
-              ['Platform', '#features'],
+              ['Product', '#features'],
               ['How it works', '#how-it-works'],
               ['Trust', '#trust'],
               ['Sign in', '/login'],
